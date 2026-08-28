@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Prep Guides — Java · Spring Boot · DSA · System Design</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+<link rel="stylesheet" href="assets/guide.css">
+</head>
+<body class="hub">
+<header class="topbar">
+  <a class="brand" href="index.html">🎯 Interview Prep <small>· hub</small></a>
+  <span class="spacer"></span>
+  <button id="theme-btn" class="tb-btn" type="button" aria-label="Toggle dark mode">🌙</button>
+</header>
+
+<main class="container">
+  <header class="hero">
+    <h1>🎯 Interview Preparation Guides</h1>
+    <p>Animation-rich, sequenced study guides with practice sets. Progress is saved in this browser.</p>
+    <div class="hero-meta">
+      <span class="legend"><span class="badge badge-core">Core</span> must know</span>
+      <span class="legend"><span class="badge badge-important">Important</span> asked often</span>
+      <span class="legend"><span class="badge badge-tough">Tough</span> where interviews are won</span>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="hub-overall">
+      <div class="ring-wrap lg" id="overall"></div>
+      <div>
+        <h2 style="color:var(--brand)">Overall progress</h2>
+        <p style="color:var(--muted)">Recommended order: <b>Java → Spring Boot → DSA → System Design</b>. Each guide builds on the previous one (e.g. HashMap internals before caching, JMM before Kafka consumers). Study Tough topics twice.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="hub-grid">
+    <a class="hub-card" href="java.html" data-guide="java">
+      <div class="icon">☕</div>
+      <h3>Java 17</h3>
+      <p>JVM &amp; GC internals, collections internals, streams, concurrency &amp; JMM, patterns, troubleshooting, predict-the-output.</p>
+      <div class="hub-foot"><span class="stat">Not started</span><span class="ring-wrap"></span></div>
+    </a>
+    <a class="hub-card" href="spring-boot.html" data-guide="spring-boot">
+      <div class="icon">🌱</div>
+      <h3>Spring Boot 3</h3>
+      <p>Bean lifecycle, auto-configuration, MVC request flow, AOP proxies, JPA &amp; transactions, Security 6, Kafka, resilience, scenarios.</p>
+      <div class="hub-foot"><span class="stat">Not started</span><span class="ring-wrap"></span></div>
+    </a>
+    <a class="hub-card" href="dsa.html" data-guide="dsa">
+      <div class="icon">🧩</div>
+      <h3>DSA in Java</h3>
+      <p>18 patterns with animated walkthroughs, Java templates, and 90+ problems including the Walmart high-frequency list.</p>
+      <div class="hub-foot"><span class="stat">Not started</span><span class="ring-wrap"></span></div>
+    </a>
+    <a class="hub-card" href="system-design.html" data-guide="system-design">
+      <div class="icon">🏗️</div>
+      <h3>System Design</h3>
+      <p>Fundamentals to classic designs: caching, sharding, consistent hashing, Raft, Kafka, sagas, rate limiting, and an interview framework.</p>
+      <div class="hub-foot"><span class="stat">Not started</span><span class="ring-wrap"></span></div>
+    </a>
+  </div>
+
+  <section class="panel" style="margin-top:28px">
+    <h2 style="color:var(--brand);margin-bottom:10px">How to use these guides</h2>
+    <ul class="pro-list">
+      <li>Every topic card has <b>Why interviewers ask</b>, a plain-English explanation, an <b>animated diagram</b> you can step through, pitfalls and likely follow-ups.</li>
+      <li>Press <kbd>?</kbd> inside a guide for keyboard shortcuts (<kbd>/</kbd> search, <kbd>t</kbd> tough-only, <kbd>j</kbd>/<kbd>k</kbd> next/prev card, <kbd>←</kbd>/<kbd>→</kbd> step an animation).</li>
+      <li>Tick <b>Read</b> on cards and <b>Solved</b> on problems; quizzes save answers. Use the ⚙ menu in a guide to export/import progress as JSON.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot"><p>Built for focused interview prep · pure HTML/CSS/JS · no tracking</p></footer>
+<script src="assets/highlight.js"></script>
+<script src="assets/guide.js"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java 17 Interview Guide</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+<link rel="stylesheet" href="assets/guide.css">
+</head>
+<body data-guide="java" class="has-sidebar">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="context-stroke"/></marker>
+    <marker id="arrow-brand" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#667eea"/></marker>
+    <marker id="arrow-ok" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#28a745"/></marker>
+    <marker id="arrow-bad" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#dc3545"/></marker>
+    <marker id="arrow-muted" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#888"/></marker>
+    <symbol id="server" viewBox="0 0 60 60"><rect x="6" y="8" width="48" height="44" rx="6" fill="#667eea"/><rect x="14" y="18" width="32" height="5" rx="2" fill="#fff" opacity=".8"/><rect x="14" y="28" width="32" height="5" rx="2" fill="#fff" opacity=".6"/><rect x="14" y="38" width="20" height="5" rx="2" fill="#fff" opacity=".4"/></symbol>
+    <symbol id="db" viewBox="0 0 60 60"><ellipse cx="30" cy="14" rx="22" ry="8" fill="#764ba2"/><path d="M8 14 v30 a22 8 0 0 0 44 0 v-30" fill="#764ba2"/><ellipse cx="30" cy="14" rx="22" ry="8" fill="#9b7bc9"/></symbol>
+    <symbol id="user" viewBox="0 0 60 60"><circle cx="30" cy="20" r="11" fill="#28a745"/><path d="M10 54 a20 16 0 0 1 40 0 z" fill="#28a745"/></symbol>
+    <symbol id="cache" viewBox="0 0 60 60"><rect x="6" y="12" width="48" height="36" rx="6" fill="#f0ad1e"/><text x="30" y="36" font-size="14" text-anchor="middle" fill="#fff" font-weight="bold">⚡</text></symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <button id="menu-btn" class="tb-btn menu-btn" type="button" aria-label="Menu">☰</button>
+  <a class="brand" href="index.html">☕ Java 17 <small>· interview guide</small></a>
+  <div class="search"><input id="search" type="search" placeholder="Search topics… ( / )" aria-label="Search"></div>
+  <span class="spacer"></span>
+  <button id="tough-btn" class="tb-btn tough" type="button" aria-pressed="false" title="Show only Tough topics (t)">🔥 <span class="txt">Tough only</span></button>
+  <button id="theme-btn" class="tb-btn" type="button" aria-label="Toggle dark mode">🌙</button>
+  <div class="settings-menu">
+    <button class="tb-btn" type="button" aria-label="Settings">⚙</button>
+    <div class="dropdown">
+      <button type="button" data-act="expand">Expand all cards</button>
+      <button type="button" data-act="collapse">Collapse all cards</button>
+      <button type="button" data-act="export">Export progress (JSON)</button>
+      <button type="button" data-act="import">Import progress</button>
+      <button type="button" data-act="motion">Toggle reduced motion</button>
+      <button type="button" data-act="shortcuts">Keyboard shortcuts</button>
+      <button type="button" data-act="reset">Reset this guide's progress</button>
+    </div>
+  </div>
+  <span class="ring-wrap" title="Guide progress"></span>
+</header>
+
+<aside class="sidebar"><nav class="toc" aria-label="Table of contents"></nav></aside>
+
+<main class="container">
+  <header class="hero">
+    <h1>☕ Java 17 Interview Guide</h1>
+    <p>JVM internals → language → collections → functional → concurrency → patterns → troubleshooting. Animated, sequenced, with practice sets.</p>
+    <div class="hero-meta">
+      <span class="legend"><span class="badge badge-core">Core</span> must know</span>
+      <span class="legend"><span class="badge badge-important">Important</span> asked often</span>
+      <span class="legend"><span class="badge badge-tough">Tough</span> where senior interviews are decided</span>
+      <span class="legend"><span class="stars">★★★★★</span> interview frequency</span>
+    </div>
+    <div class="filter-chips" style="justify-content:center;margin-top:16px">
+      <button class="chip" type="button" data-level="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-level="core" aria-pressed="false">Core</button>
+      <button class="chip" type="button" data-level="important" aria-pressed="false">Important</button>
+      <button class="chip" type="button" data-level="tough" aria-pressed="false">Tough</button>
+    </div>
+  </header>
+
+  <!-- ===================================================================== 1. JVM & MEMORY -->
+  <section class="section" id="s-jvm">
+    <h2>1️⃣ JVM &amp; Memory</h2>
+    <p class="intro">Everything else in Java sits on top of the JVM. Interviewers use this section to separate "writes Java" from "understands Java": class loading, where objects live, and how garbage collection actually works.</p>
+
+    <article class="term-card" id="jvm-classloading" data-level="tough" data-freq="4" data-type="concept" data-tags="classloader,delegation,bootstrap,platform,application,linking">
+      <header class="term-head"><h3>Class Loading &amp; Parent Delegation</h3></header>
+      <div class="term-body">
+        <p class="why"><b>Why interviewers ask:</b> it explains <code>ClassNotFoundException</code> vs <code>NoClassDefFoundError</code>, why two copies of the same class can be "different", and how app servers and Spring Boot isolate classes.</p>
+        <div class="explanation">
+          <p>Loading a class happens in three phases: <b>Loading</b> (read bytes → <code>Class</code> object), <b>Linking</b> (verify bytecode, prepare static fields with defaults, resolve symbolic refs) and <b>Initialization</b> (run static initializers, in order). Classes are loaded <em>lazily</em>: on first active use.</p>
+          <p>Three built-in loaders form a hierarchy: <b>Bootstrap</b> (core <code>java.base</code>, native), <b>Platform</b> (JDK modules like <code>java.sql</code>), <b>Application</b> (your classpath). <span class="analogy">Analogy: a junior engineer who receives a request first asks their manager, who asks their director; only if nobody above can handle it does the junior do it themselves.</span> That is <b>parent delegation</b>: every loader asks its parent first, so core classes can never be shadowed by a malicious <code>java.lang.String</code> on the classpath.</p>
+        </div>
+
+        <figure class="anim" data-anim="classloader-delegation" data-steps="6" data-autoplay data-title="Parent delegation: loading com.acme.Order">
+          <svg viewBox="0 0 800 330">
+            <g>
+              <rect x="300" y="20" width="200" height="50" rx="8" class="box2"/><text x="400" y="50" text-anchor="middle" class="lbl-light" font-weight="bold">Bootstrap loader</text>
+              <text x="520" y="50" class="lbl-muted" font-size="12">java.base (String, Object…)</text>
+              <rect x="300" y="110" width="200" height="50" rx="8" class="box2"/><text x="400" y="140" text-anchor="middle" class="lbl-light" font-weight="bold">Platform loader</text>
+              <text x="520" y="140" class="lbl-muted" font-size="12">java.sql, java.xml…</text>
+              <rect x="300" y="200" width="200" height="50" rx="8" class="box"/><text x="400" y="230" text-anchor="middle" class="lbl-light" font-weight="bold">Application loader</text>
+              <text x="520" y="230" class="lbl-muted" font-size="12">-cp / your jars</text>
+              <line x1="400" y1="110" x2="400" y2="70" class="wire" marker-end="url(#arrow-muted)"/>
+              <line x1="400" y1="200" x2="400" y2="160" class="wire" marker-end="url(#arrow-muted)"/>
+              <text x="410" y="95" class="lbl-muted" font-size="11">parent</text>
+              <text x="410" y="185" class="lbl-muted" font-size="11">parent</text>
+            </g>
+            <g data-step="1">
+              <rect x="30" y="200" width="215" height="50" rx="8" class="box-ok"/><text x="137" y="222" text-anchor="middle" class="lbl-light" font-size="13" font-weight="bold">new Order()</text><text x="137" y="240" text-anchor="middle" class="lbl-light" font-size="10">first use → loadClass("com.acme.Order")</text>
+              <line x1="240" y1="225" x2="298" y2="225" class="wire-ok" marker-end="url(#arrow-ok)"/>
+            </g>
+            <g data-step="2" data-until="4"><path d="M330 200 C 260 160, 260 150, 330 110" class="wire-brand" data-fx="draw" marker-end="url(#arrow-brand)"/><text x="235" y="160" font-size="12" fill="#667eea">1. ask parent</text></g>
+            <g data-step="3" data-until="4"><path d="M330 110 C 260 70, 260 60, 330 20" class="wire-brand" data-fx="draw" marker-end="url(#arrow-brand)"/><text x="235" y="70" font-size="12" fill="#667eea">2. ask parent</text></g>
+            <g data-step="4" data-until="5"><text x="520" y="72" font-size="12" fill="#dc3545" font-weight="bold">"not mine" ✗</text><text x="520" y="162" font-size="12" fill="#dc3545" font-weight="bold">"not mine" ✗</text></g>
+            <g data-step="5" data-fx="pulse"><rect x="300" y="200" width="200" height="50" rx="8" fill="none" stroke="#28a745" stroke-width="4"/><text x="400" y="285" text-anchor="middle" font-size="13" fill="#28a745" font-weight="bold">3. Application loader finds Order.class on classpath → defineClass</text></g>
+            <g data-step="6"><rect x="560" y="270" width="210" height="44" rx="8" class="cell-ok"/><text x="665" y="290" text-anchor="middle" font-size="12">Class&lt;Order&gt; cached in this loader</text><text x="665" y="306" text-anchor="middle" font-size="11" class="lbl-muted">identity = (name, defining loader)</text></g>
+          </svg>
+          <div class="anim-captions">
+            <p data-step="1"><b>Step 1.</b> The first <code>new Order()</code> triggers the Application loader's <code>loadClass</code>.</p>
+            <p data-step="2"><b>Step 2.</b> Before looking itself, it delegates to its parent, the Platform loader.</p>
+            <p data-step="3"><b>Step 3.</b> The Platform loader delegates to Bootstrap the same way.</p>
+            <p data-step="4"><b>Step 4.</b> Neither parent knows <code>com.acme.Order</code>, so the request comes back down.</p>
+            <p data-step="5"><b>Step 5.</b> Only now does the Application loader search its own classpath and define the class.</p>
+            <p data-step="6"><b>Step 6.</b> The result is cached. A class's identity is <em>name + defining loader</em> — the same bytes loaded by two loaders are two different classes (hence <code>ClassCastException</code> in plugin systems).</p>
+          </div>
+        </figure>
+
+        <div class="example"><strong>Interview angle:</strong> "Can you override <code>java.lang.String</code> by putting your own on the classpath?" No: Bootstrap answers first and the app loader never gets to define it. "Why does Tomcat break delegation?" Web-app loaders look locally first so each WAR can ship its own library versions.</div>
+
+        <table class="cmp">
+          <tr><th>Error</th><th>When</th><th>Typical cause</th></tr>
+          <tr><td><code>ClassNotFoundException</code></td><td>Checked; thrown by <code>Class.forName</code>/<code>loadClass</code></td><td>Class simply isn't on the classpath (missing jar)</td></tr>
+          <tr><td><code>NoClassDefFoundError</code></td><td>Error; class was present at compile time</td><td>Static initializer failed earlier, or the jar was removed after compiling</td></tr>
+        </table>
+
+        <div class="pitfalls"><h4>Pitfalls</h4><ul>
+          <li>Static initializers run once per <em>loader</em>; a failure is remembered and later uses throw <code>NoClassDefFoundError</code>.</li>
+          <li>Class loader leaks: redeploying a web app while a thread (or <code>ThreadLocal</code>) still references its classes keeps the whole loader alive → Metaspace OOM.</li>
+        </ul></div>
+        <div class="followups"><h4>Likely follow-ups</h4><ul>
+          <li>What triggers initialization? (new, static method call, static field write, reflection, subclass init, main class.)</li>
+          <li>How does Spring Boot's fat jar load nested jars? (Custom <code>LaunchedURLClassLoader</code>.)</li>
+          <li>Where does class metadata live? (Metaspace since Java 8; PermGen before.)</li>
+        </ul></div>
+        <div class="note note-version"><h4>Java 8 vs 17</h4>Java 9 renamed the Extension loader to <b>Platform</b> loader and stopped using <code>URLClassLoader</code> for the app loader, so casting <code>ClassLoader.getSystemClassLoader()</code> to <code>URLClassLoader</code> now fails.</div>
+      </div>
+    </article>
+
+    <article class="term-card" id="jvm-runtime-areas" data-level="tough" data-freq="5" data-type="concept" data-tags="stack,heap,metaspace,frame,pc register,memory model">
+      <header class="term-head"><h3>Runtime Data Areas: Stack vs Heap vs Metaspace</h3></header>
+      <div class="term-body">
+        <p class="why"><b>Why interviewers ask:</b> it underpins "is Java pass-by-value?", <code>StackOverflowError</code> vs <code>OutOfMemoryError</code>, and why local variables are thread-safe.</p>
+        <div class="explanation">
+          <p>Each <b>thread</b> gets its own <b>PC register</b> and <b>JVM stack</b> of frames (one per method call: local variables, operand stack, return address). All threads share the <b>heap</b> (every object and array) and <b>Metaspace</b> (class metadata, static fields' home). References live on the stack; the objects they point to live on the heap.</p>
+        </div>
+
+        <div class="walk" data-walk="stack-heap" data-title="Step through: what is on the stack and what is on the heap">
+          <pre class="code" data-lang="java"><code>public class Demo {
+    static int counter = 0;                 // Metaspace (static)
+
+    public static void main(String[] args) {
+        int x = 10;                         // primitive → stack frame of main
+        Order o = new Order("A1");          // ref on stack, object on heap
+        update(o, x);
+        System.out.println(o.id + " " + x); // prints "A1-upd 10"
+    }
+
+    static void update(Order ord, int n) {
+        ord.id = ord.id + "-upd";           // mutates the shared heap object
+        n = 99;                             // only this frame's copy changes
+        ord = new Order("B2");              // rebinding local ref: caller unaffected
+    }
+}</code></pre>
+          <ol class="walk-steps">
+            <li data-lines="4-5" data-state='{"stack":["main: x=10"],"heap":{"counter(static)":"0"},"msg":"main frame pushed; x is a primitive stored directly in the frame"}'>Entering <code>main</code>: the frame holds <code>x</code> directly.</li>
+            <li data-lines="6" data-state='{"stack":["main: x=10, o→@1"],"heap":{"counter(static)":"0","@1 Order":"id=A1"}}'><code>new Order</code> allocates on the heap; <code>o</code> is just a reference stored in the frame.</li>
+            <li data-lines="7,11" data-state='{"stack":["main: x=10, o→@1","update: ord→@1, n=10"],"heap":{"counter(static)":"0","@1 Order":"id=A1"}}'>Calling <code>update</code> pushes a new frame. The <em>reference value</em> and the <em>int value</em> are copied: pass-by-value.</li>
+            <li data-lines="12" data-state='{"stack":["main: x=10, o→@1","update: ord→@1, n=10"],"heap":{"counter(static)":"0","@1 Order":"id=A1-upd"}}'>Through the copied reference we mutate the one shared object, so <code>main</code> will see it.</li>
+            <li data-lines="13" data-state='{"stack":["main: x=10, o→@1","update: ord→@1, n=99"],"heap":{"counter(static)":"0","@1 Order":"id=A1-upd"}}'><code>n = 99</code> changes only this frame's slot; <code>x</code> in <code>main</code> is untouched.</li>
+            <li data-lines="14" data-state='{"stack":["main: x=10, o→@1","update: ord→@2, n=99"],"heap":{"counter(static)":"0","@1 Order":"id=A1-upd","@2 Order":"id=B2"}}'>Rebinding <code>ord</code> points this frame's slot at a new object. <code>o</code> in <code>main</code> still points at @1.</li>
+            <li data-lines="8" data-state='{"stack":["main: x=10, o→@1"],"heap":{"counter(static)":"0","@1 Order":"id=A1-upd","@2 Order":"id=B2 (garbage)"}}'>Frame popped. Output: <b>A1-upd 10</b>. @2 is unreachable and will be collected.</li>
+          </ol>
+        </div>
+
+        <table class="cmp">
+          <tr><th>Area</th><th>Scope</th><th>Holds</th><th>Error when full</th><th>Tune with</th></tr>
+          <tr><td>JVM stack</td><td>Per thread</td><td>Frames: locals, operand stack</td><td><code>StackOverflowError</code></td><td><code>-Xss</code></td></tr>
+          <tr><td>Heap</td><td>Shared</td><td>All objects, arrays, String pool</td><td><code>OutOfMemoryError: Java heap space</code></td><td><code>-Xms -Xmx</code></td></tr>
+          <tr><td>Metaspace</td><td>Shared, native memory</td><td>Class metadata, method bytecode, statics' home</td><td><code>OutOfMemoryError: Metaspace</code></td><td><code>-XX:MaxMetaspaceSize</code></td></tr>
+          <tr><td>Code cache</td><td>Shared</td><td>JIT-compiled native code</td><td>JIT stops compiling (slow)</td><td><code>-XX:ReservedCodeCacheSize</code></td></tr>
+        </table>
+        <div class="pitfalls"><h4>Pitfalls</h4><ul>
+          <li>"Java is pass-by-reference" — wrong. It copies the reference <em>value</em>. Rebinding a parameter never affects the caller.</li>
+          <li>Deep recursion (e.g. naive tree DFS on a 1M-node linked chain) overflows the thread stack: switch to an explicit stack.</li>
+        </ul></div>
+        <div class="followups"><h4>Likely follow-ups</h4><ul><li>Where do static fields live? (Metaspace holds the class; static <em>object</em> instances are on the heap.)</li><li>Are string literals on the heap? (Yes, in the heap-resident string pool since Java 7.)</li><li>What is escape analysis? (JIT can scalar-replace objects that never escape a method, effectively allocating on the stack.)</li></ul></div>
+      </div>
+    </article>
+
+    <section class="quiz" data-quiz="java-s1" data-title="Quick check: JVM &amp; memory">
+      <div class="q" data-q="1" data-answer="c">
+        <p class="q-text">A class is on the classpath but you get <code>NoClassDefFoundError</code> at runtime. Most likely cause?</p>
+        <label><input type="radio" name="java-s1-1" value="a"> The class file is corrupted</label>
+        <label><input type="radio" name="java-s1-1" value="b"> The class was loaded by the Bootstrap loader</label>
+        <label><input type="radio" name="java-s1-1" value="c"> Its static initializer threw earlier, so the class is marked erroneous</label>
+        <label><input type="radio" name="java-s1-1" value="d"> The JIT compiler rejected the class</label>
+        <div class="q-explain"><b>c.</b> If initialization fails once (an <code>ExceptionInInitializerError</code>), every later use throws <code>NoClassDefFoundError</code>. <b>a</b> would be a <code>ClassFormatError</code>, <b>b</b> is not an error, and the JIT (<b>d</b>) never rejects classes.</div>
+      </div>
+      <div class="q" data-q="2" data-answer="b">
+        <p class="q-text">Which statement about method parameters is correct?</p>
+        <label><input type="radio" name="java-s1-2" value="a"> Objects are passed by reference, primitives by value</label>
+        <label><input type="radio" name="java-s1-2" value="b"> Everything is passed by value; for objects, the value is a reference copy</label>
+        <label><input type="radio" name="java-s1-2" value="c"> Reassigning a parameter changes the caller's variable</label>
+        <label><input type="radio" name="java-s1-2" value="d"> Strings are passed by reference because they are immutable</label>
+        <div class="q-explain"><b>b.</b> The walkthrough above shows it: mutating through the copied reference is visible to the caller, but rebinding the parameter (<b>c</b>) is not. Immutability (<b>d</b>) is unrelated to passing semantics.</div>
+      </div>
+    </section>
+
+    <h3 style="color:var(--brand);margin:26px 0 12px">Practice</h3>
+    <article class="problem" id="p-jvm-init-order" data-diff="medium" data-level="tough">
+      <header><h4>Predict the output: static vs instance initialization order</h4></header>
+      <div class="pbody">
+        <div class="prompt">
+          <pre class="code" data-lang="java"><code>class Parent {
+    static { System.out.print("PS "); }
+    { System.out.print("PI "); }
+    Parent() { System.out.print("PC "); }
+}
+class Child extends Parent {
+    static { System.out.print("CS "); }
+    { System.out.print("CI "); }
+    Child() { System.out.print("CC "); }
+}
+public class Main {
+    public static void main(String[] a) { new Child(); new Child(); }
+}</code></pre>
+        </div>
+        <div class="meta"><span><b>Tests:</b> class initialization vs object construction</span></div>
+        <details class="hint"><summary>Hint 1</summary><div>Static blocks run once per class, parent first, before any constructor.</div></details>
+        <details class="hint"><summary>Hint 2</summary><div>Instance initializer blocks run right after the implicit <code>super()</code> call, before the constructor body.</div></details>
+        <details class="solution"><summary>Reveal solution</summary><div>
+          <p><b>Output:</b> <code>PS CS PI PC CI CC PI PC CI CC</code></p>
+          <p>First <code>new Child()</code>: initialize <code>Parent</code> (PS) then <code>Child</code> (CS) — once only. Then construct: <code>Child()</code> implicitly calls <code>super()</code>, so Parent's instance block (PI) and constructor (PC) run, then Child's instance block (CI) and constructor (CC). The second <code>new Child()</code> skips the static blocks entirely.</p>
+        </div></details>
+      </div>
+    </article>
+  </section>
+
+  <footer class="foot"><p>Next: <a href="spring-boot.html">Spring Boot 3 guide →</a> · <a href="index.html">Hub</a></p></footer>
+</main>
+
+<button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+
+<div class="shortcuts-sheet" role="dialog" aria-label="Keyboard shortcuts">
+  <div class="panel">
+    <h3 style="color:var(--brand);margin-bottom:10px">Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>/</kbd></td><td>Focus search</td></tr>
+      <tr><td><kbd>t</kbd></td><td>Toggle "Tough only"</td></tr>
+      <tr><td><kbd>d</kbd></td><td>Toggle dark mode</td></tr>
+      <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>Next / previous card</td></tr>
+      <tr><td><kbd>Enter</kbd></td><td>Open / close focused card</td></tr>
+      <tr><td><kbd>←</kbd> / <kbd>→</kbd> / <kbd>Space</kbd></td><td>Step / play a focused animation</td></tr>
+      <tr><td><kbd>?</kbd></td><td>This sheet</td></tr>
+    </table>
+  </div>
+</div>
+
+<script src="assets/highlight.js"></script>
+<script src="assets/guide.js"></script>
+</body>
+</html>

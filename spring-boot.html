@@ -8,6 +8,21 @@
 <link rel="stylesheet" href="assets/guide.css">
 </head>
 <body data-guide="spring-boot" class="has-sidebar">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="context-stroke"/></marker>
+    <marker id="arrow-brand" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#667eea"/></marker>
+    <marker id="arrow-ok" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#28a745"/></marker>
+    <marker id="arrow-bad" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#dc3545"/></marker>
+    <marker id="arrow-muted" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#888"/></marker>
+    <symbol id="server" viewBox="0 0 60 60"><rect x="6" y="8" width="48" height="44" rx="6" fill="#667eea"/><rect x="14" y="18" width="32" height="5" rx="2" fill="#fff" opacity=".8"/><rect x="14" y="28" width="32" height="5" rx="2" fill="#fff" opacity=".6"/><rect x="14" y="38" width="20" height="5" rx="2" fill="#fff" opacity=".4"/></symbol>
+    <symbol id="db" viewBox="0 0 60 60"><ellipse cx="30" cy="14" rx="22" ry="8" fill="#764ba2"/><path d="M8 14 v30 a22 8 0 0 0 44 0 v-30" fill="#764ba2"/><ellipse cx="30" cy="14" rx="22" ry="8" fill="#9b7bc9"/></symbol>
+    <symbol id="user" viewBox="0 0 60 60"><circle cx="30" cy="20" r="11" fill="#28a745"/><path d="M10 54 a20 16 0 0 1 40 0 z" fill="#28a745"/></symbol>
+    <symbol id="cache" viewBox="0 0 60 60"><rect x="6" y="12" width="48" height="36" rx="6" fill="#f0ad1e"/><text x="30" y="36" font-size="14" text-anchor="middle" fill="#fff" font-weight="bold">⚡</text></symbol>
+  </defs>
+</svg>
+
 <header class="topbar">
   <button id="menu-btn" class="tb-btn menu-btn" type="button" aria-label="Menu">☰</button>
   <a class="brand" href="index.html">🌱 Spring Boot 3 <small>· interview guide</small></a>
@@ -15,17 +30,64 @@
   <span class="spacer"></span>
   <button id="tough-btn" class="tb-btn tough" type="button" aria-pressed="false" title="Show only Tough topics (t)">🔥 <span class="txt">Tough only</span></button>
   <button id="theme-btn" class="tb-btn" type="button" aria-label="Toggle dark mode">🌙</button>
+  <div class="settings-menu">
+    <button class="tb-btn" type="button" aria-label="Settings">⚙</button>
+    <div class="dropdown">
+      <button type="button" data-act="expand">Expand all cards</button>
+      <button type="button" data-act="collapse">Collapse all cards</button>
+      <button type="button" data-act="export">Export progress (JSON)</button>
+      <button type="button" data-act="import">Import progress</button>
+      <button type="button" data-act="motion">Toggle reduced motion</button>
+      <button type="button" data-act="shortcuts">Keyboard shortcuts</button>
+      <button type="button" data-act="reset">Reset this guide's progress</button>
+    </div>
+  </div>
   <span class="ring-wrap" title="Guide progress"></span>
 </header>
+
 <aside class="sidebar"><nav class="toc" aria-label="Table of contents"></nav></aside>
+
 <main class="container">
   <header class="hero">
     <h1>🌱 Spring Boot 3 Interview Guide</h1>
-    <p>Bean lifecycle → auto-configuration → MVC → AOP → JPA & transactions → Security → messaging → resilience → scenarios.</p>
-    <p style="margin-top:14px"><span class="badge badge-tool">Coming soon</span> This guide is being built. Start with the <a href="java.html">Java guide</a>.</p>
+    <p>IoC &amp; bean lifecycle → auto-configuration → MVC → AOP → JPA &amp; transactions → Security → messaging → resilience → deployment &amp; scenarios.</p>
+    <div class="hero-meta">
+      <span class="legend"><span class="badge badge-core">Core</span> must know</span>
+      <span class="legend"><span class="badge badge-important">Important</span> asked often</span>
+      <span class="legend"><span class="badge badge-tough">Tough</span> where senior interviews are decided</span>
+      <span class="legend"><span class="stars">★★★★★</span> interview frequency</span>
+    </div>
+    <div class="filter-chips" style="justify-content:center;margin-top:16px">
+      <button class="chip" type="button" data-level="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-level="core" aria-pressed="false">Core</button>
+      <button class="chip" type="button" data-level="important" aria-pressed="false">Important</button>
+      <button class="chip" type="button" data-level="tough" aria-pressed="false">Tough</button>
+    </div>
   </header>
+
+  <!-- CONTENT START -->
+  <section class="section" id="s-soon"><h2>🚧 Coming soon</h2><p class="intro">This guide is being built. Start with the <a href="java.html">Java guide</a>.</p></section>
+  <!-- CONTENT END -->
+  <footer class="foot"><p>Next: <a href="dsa.html">DSA guide →</a> · <a href="index.html">Hub</a></p></footer>
 </main>
+
 <button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+
+<div class="shortcuts-sheet" role="dialog" aria-label="Keyboard shortcuts">
+  <div class="panel">
+    <h3 style="color:var(--brand);margin-bottom:10px">Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>/</kbd></td><td>Focus search</td></tr>
+      <tr><td><kbd>t</kbd></td><td>Toggle "Tough only"</td></tr>
+      <tr><td><kbd>d</kbd></td><td>Toggle dark mode</td></tr>
+      <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>Next / previous card</td></tr>
+      <tr><td><kbd>Enter</kbd></td><td>Open / close focused card</td></tr>
+      <tr><td><kbd>←</kbd> / <kbd>→</kbd> / <kbd>Space</kbd></td><td>Step / play a focused animation</td></tr>
+      <tr><td><kbd>?</kbd></td><td>This sheet</td></tr>
+    </table>
+  </div>
+</div>
+
 <script src="assets/highlight.js"></script>
 <script src="assets/guide.js"></script>
 </body>

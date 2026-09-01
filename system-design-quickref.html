@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design Quick Reference</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+<link rel="stylesheet" href="assets/guide.css">
+<style>
+.qr-fig { margin: 14px 0; background: var(--card-alt); border: 1px solid var(--rule); border-radius: 10px; padding: 10px; }
+.qr-fig svg { width: 100%; height: auto; display: block; }
+.qr-fig .wire { stroke: var(--muted); stroke-width: 2; fill: none; }
+.qr-fig .wire-ok { stroke: #28a745; stroke-width: 2.5; fill: none; }
+.qr-fig .wire-bad { stroke: #dc3545; stroke-width: 2.5; fill: none; }
+.qr-fig .wire-brand { stroke: var(--brand); stroke-width: 2.5; fill: none; }
+.qr-fig .box { fill: var(--brand); }
+.qr-fig .box2 { fill: var(--brand2); }
+.qr-fig .box-ok { fill: #28a745; }
+.qr-fig .box-warn { fill: #f0ad1e; }
+.qr-fig .lbl-light { fill: #fff; }
+.qr-fig .lbl-muted { fill: var(--muted); }
+.qr-say { border-left: 4px solid var(--core); background: var(--core-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 10px 0; font-style: italic; }
+@media print {
+  .topbar, .sidebar, .back-to-top { display: none !important; }
+  .term-card .term-body, .term-card .body { display: block !important; }
+  .qr-fig { break-inside: avoid; }
+}
+</style>
+</head>
+<body data-guide="sd-quickref" class="has-sidebar">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="context-stroke"/></marker>
+    <marker id="arrow-brand" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#667eea"/></marker>
+    <marker id="arrow-ok" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#28a745"/></marker>
+    <marker id="arrow-bad" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#dc3545"/></marker>
+    <marker id="arrow-muted" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#888"/></marker>
+    <symbol id="server" viewBox="0 0 60 60"><rect x="6" y="8" width="48" height="44" rx="6" fill="#667eea"/><rect x="14" y="18" width="32" height="5" rx="2" fill="#fff" opacity=".8"/><rect x="14" y="28" width="32" height="5" rx="2" fill="#fff" opacity=".6"/><rect x="14" y="38" width="20" height="5" rx="2" fill="#fff" opacity=".4"/></symbol>
+    <symbol id="db" viewBox="0 0 60 60"><ellipse cx="30" cy="14" rx="22" ry="8" fill="#764ba2"/><path d="M8 14 v30 a22 8 0 0 0 44 0 v-30" fill="#764ba2"/><ellipse cx="30" cy="14" rx="22" ry="8" fill="#9b7bc9"/></symbol>
+    <symbol id="user" viewBox="0 0 60 60"><circle cx="30" cy="20" r="11" fill="#28a745"/><path d="M10 54 a20 16 0 0 1 40 0 z" fill="#28a745"/></symbol>
+    <symbol id="cache" viewBox="0 0 60 60"><rect x="6" y="12" width="48" height="36" rx="6" fill="#f0ad1e"/><text x="30" y="36" font-size="14" text-anchor="middle" fill="#fff" font-weight="bold">⚡</text></symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <button id="menu-btn" class="tb-btn menu-btn" type="button" aria-label="Menu">☰</button>
+  <a class="brand" href="index.html">🏗️ SD Quick Reference <small>· cheat sheet</small></a>
+  <div class="search"><input id="search" type="search" placeholder="Search topics… ( / )" aria-label="Search"></div>
+  <span class="spacer"></span>
+  <button id="theme-btn" class="tb-btn" type="button" aria-label="Toggle dark mode">🌙</button>
+  <span class="ring-wrap" title="Guide progress"></span>
+</header>
+
+<aside class="sidebar"><nav class="toc" aria-label="Table of contents"></nav></aside>
+
+<main class="container">
+  <header class="hero">
+    <h1>🏗️ System Design Quick Reference</h1>
+    <p>Everything you revise in the last hour: numbers, trade-offs, and 16 designs in recipe form.</p>
+    <p style="margin-top:10px"><a href="system-design.html">→ Full guide with animations and deep dives</a></p>
+  </header>
+
+  <!-- CONTENT START -->
+<section class="section" id="s-qr-numbers">
+  <h2>1️⃣ Numbers &amp; Checklists</h2>
+
+  <article class="term-card" id="qr-latency" data-level="core" data-freq="5" data-type="concept" data-tags="latency numbers,throughput,capacity,ballparks,rtt,ssd,ram,postgres,redis,kafka,s3">
+    <header class="term-head"><h3>Latency numbers &amp; capacity ballparks</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Memorize these:</b> every estimation and every "will this be fast enough?" judgment call in the interview reduces to one of these rows.</p>
+      <table class="cmp">
+        <tr><th>Operation</th><th>Latency</th><th>Remember it as</th></tr>
+        <tr><td>L1 cache reference</td><td>~1 ns</td><td>the unit</td></tr>
+        <tr><td>Main-memory (RAM) reference</td><td>~100 ns</td><td>100× L1</td></tr>
+        <tr><td>SSD random read</td><td>~100 µs</td><td>1000× RAM</td></tr>
+        <tr><td>Same-DC network RTT</td><td>~0.5–1 ms</td><td>free-ish; chatty is fine inside a DC</td></tr>
+        <tr><td>HDD disk seek</td><td>~10 ms</td><td>100× SSD — why databases hate random disk I/O</td></tr>
+        <tr><td>Cross-region RTT (US↔EU)</td><td>~80–150 ms</td><td>can't hide it; replicate data near users</td></tr>
+        <tr><td>TLS 1.2 handshake (cold)</td><td>2 RTT (~+200 ms cross-region)</td><td>reuse connections; TLS 1.3 = 1 RTT</td></tr>
+      </table>
+      <table class="cmp" style="margin-top:12px">
+        <tr><th>Component</th><th>Ballpark</th><th>Note</th></tr>
+        <tr><td>Single Postgres/MySQL node</td><td>~5–10k simple QPS, ~1–5 TB comfortable</td><td>reads scale with replicas; writes don't</td></tr>
+        <tr><td>Single Redis node</td><td>~100k ops/s, RAM-bound</td><td>in-memory, single-threaded core</td></tr>
+        <tr><td>One Kafka partition</td><td>~10 MB/s / ~10k msg/s sustained</td><td>partitions are the scaling unit</td></tr>
+        <tr><td>One app server</td><td>~1–5k RPS (simple, I/O-bound)</td><td>stateless → scale horizontally</td></tr>
+        <tr><td>S3 / object storage</td><td>~3.5k PUT &amp; 5.5k GET/s per prefix, 11 nines durability</td><td>bulk bytes go here, not in the DB</td></tr>
+      </table>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why is chatty microservice traffic OK in-DC but not cross-region?</b> → 1 ms vs 100 ms per hop; 10 hops = 10 ms vs 1 s.</li>
+        <li><b>Memory vs SSD for a cache?</b> → RAM is ~1000× faster; SSD caches only for huge, warm-but-cold-tolerant sets.</li>
+        <li><b>How many servers for 100k RPS?</b> → ~50–100 app servers at 1–2k RPS each, plus headroom.</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-estimation" data-level="core" data-freq="5" data-type="concept" data-tags="estimation,qps,dau,peak factor,storage math,bandwidth,cache sizing,back of envelope">
+    <header class="term-head"><h3>Estimation formulas + worked example</h3></header>
+    <div class="term-body">
+      <p class="why"><b>The trick:</b> 1 day ≈ 10<sup>5</sup> seconds (86,400). All estimation is multiplication with round numbers — say the units out loud.</p>
+      <table class="cmp">
+        <tr><th>Quantity</th><th>Formula</th><th>Rule of thumb</th></tr>
+        <tr><td>Average QPS</td><td>DAU × actions/user/day ÷ 10<sup>5</sup> s</td><td>10M DAU × 10 actions ≈ 1,000 QPS</td></tr>
+        <tr><td>Peak QPS</td><td>average × peak factor</td><td>2–3× normal; 10×+ for events/flash sales</td></tr>
+        <tr><td>Storage</td><td>items/day × size × days × replication</td><td>×3 for replication; ×1.5 for indexes/overhead</td></tr>
+        <tr><td>Bandwidth</td><td>QPS × payload size</td><td>1k QPS × 100 KB = 100 MB/s ≈ 1 Gbps</td></tr>
+        <tr><td>Cache size</td><td>~20% of hot data (80/20 rule)</td><td>enough for ~80%+ hit ratio on Zipf traffic</td></tr>
+      </table>
+      <div class="explanation"><b>Worked example — photo app, 10M DAU:</b><ul>
+        <li>Writes: 10M × 2 photos/day ÷ 10<sup>5</sup> = <b>200 uploads/s</b> (peak ~600/s).</li>
+        <li>Reads: 100:1 read ratio → <b>20k views/s</b> (peak 60k/s) — design for the read path.</li>
+        <li>Storage: 20M/day × 2 MB = 40 TB/day → <b>~14 PB/yr ×3 replicas ≈ 42 PB</b> → object store + CDN, never a DB.</li>
+        <li>Metadata: 20M/day × 1 KB = 20 GB/day → ~7 TB/yr — one sharded DB is fine.</li>
+        <li>Cache: 20% of daily hot metadata ≈ a few hundred GB → small Redis cluster.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why divide by 10<sup>5</sup> not 86,400?</b> → Round numbers; estimation cares about the exponent, not the mantissa.</li>
+        <li><b>What peak factor for a ticket on-sale?</b> → 10–100×: demand compresses into the first minute.</li>
+        <li><b>KB vs KiB pedantry?</b> → Say "I'll use powers of 10 for estimation" and move on.</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-framework" data-level="core" data-freq="5" data-type="pattern" data-tags="framework,requirements,high-level design,deep dive,wrap-up,time budget,45 minutes,checklist">
+    <header class="term-head"><h3>The 4-step framework (45-min budget)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Never skip step 1.</b> Most failed interviews die in the first five minutes by designing the wrong system.</p>
+      <table class="cmp">
+        <tr><th>Step</th><th>Time</th><th>Checklist</th><th>Output on the board</th></tr>
+        <tr><td>1. Requirements</td><td>~5 min</td><td>Functional (3–5 features max, get sign-off) · non-functional (scale, latency, consistency, availability) · out of scope</td><td>Bullet list + the numbers (DAU, QPS, storage)</td></tr>
+        <tr><td>2. High-level design</td><td>~15 min</td><td>API sketch · data model · box diagram: client → LB → app → cache/DB/queue · walk one read and one write end-to-end</td><td>One diagram every component earns its place in</td></tr>
+        <tr><td>3. Deep dives</td><td>~15 min</td><td>Let the interviewer steer; go deep on 2–3: sharding, cache strategy, fan-out, the hard consistency problem</td><td>Trade-offs stated as X vs Y → pick + reason</td></tr>
+        <tr><td>4. Wrap-up</td><td>~5 min</td><td>Bottlenecks at 10× · SPOFs · monitoring · what you'd do with more time</td><td>"What breaks first" answer</td></tr>
+      </table>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Interviewer says "assume any scale you like"?</b> → Pick concrete numbers yourself and state them; never design scale-free.</li>
+        <li><b>You're 30 min in and still on high-level?</b> → Cut scope out loud: "I'll deep-dive the feed fan-out and leave search stubbed."</li>
+        <li><b>What single habit signals senior?</b> → Every choice arrives as a trade-off with a reason, not a technology name.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#fw-four-step">The 4-step framework</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-sla" data-level="core" data-freq="4" data-type="concept" data-tags="sla,slo,nines,availability,downtime,composite availability,serial,parallel">
+    <header class="term-head"><h3>SLA math — nines &amp; composition</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Two formulas:</b> serial chains multiply availabilities (chain is weaker than its weakest link); parallel redundancy multiplies the <i>un</i>availabilities.</p>
+      <table class="cmp">
+        <tr><th>Nines</th><th>Availability</th><th>Downtime / year</th><th>Downtime / month</th></tr>
+        <tr><td>2 nines</td><td>99%</td><td>3.65 days</td><td>~7.3 h</td></tr>
+        <tr><td>3 nines</td><td>99.9%</td><td>8.77 h</td><td>~43.8 min</td></tr>
+        <tr><td>4 nines</td><td>99.99%</td><td>52.6 min</td><td>~4.4 min</td></tr>
+        <tr><td>5 nines</td><td>99.999%</td><td>5.26 min</td><td>~26 s</td></tr>
+      </table>
+      <div class="explanation"><b>Composite availability.</b><ul>
+        <li><b>Serial</b> (A depends on B): A<sub>total</sub> = A × B. Three 99.9% services in a chain → 99.7% (~26 h/yr).</li>
+        <li><b>Parallel</b> (either of two replicas serves): A = 1 − (1−a)². Two 99% nodes → 99.99% — <i>if</i> failures are independent.</li>
+        <li>Each extra serial dependency costs nines; each independent replica buys them. Correlated failures (same AZ, same deploy) void the parallel math.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Your SLA is 99.9% but you depend on a 99.9% DB — possible?</b> → Only with redundancy or graceful degradation on DB failure.</li>
+        <li><b>Why not promise 5 nines?</b> → 26 s/month means no human in the loop and multi-region active-active; cost explodes per nine.</li>
+        <li><b>SLI vs SLO vs SLA?</b> → Measurement vs internal target vs external contract with penalties.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#rel-nines">Availability math</a></p>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="s-qr-tradeoffs">
+  <h2>2️⃣ The Big Trade-offs</h2>
+
+  <article class="term-card" id="qr-sql-nosql" data-level="core" data-freq="5" data-type="concept" data-tags="sql,nosql,postgres,dynamodb,cassandra,mongodb,graph,decision">
+    <header class="term-head"><h3>SQL vs NoSQL (and which NoSQL family)</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Pick</th><th>When</th><th>Because</th></tr>
+        <tr><td>SQL (Postgres/MySQL)</td><td>Relations, transactions, flexible/unknown queries, &lt;~10 TB</td><td>ACID, joins, mature tooling; scales further than people admit</td></tr>
+        <tr><td>Key-value (Dynamo/Redis)</td><td>Get/put by key at huge scale, predictable low latency</td><td>Partitions trivially; no query flexibility to lose</td></tr>
+        <tr><td>Wide-column (Cassandra)</td><td>Write-heavy, time-series-ish, known access patterns</td><td>LSM writes + linear scale-out; queries must match table design</td></tr>
+        <tr><td>Document (MongoDB)</td><td>Self-contained aggregates, evolving schema</td><td>Object maps to one document; weak at cross-document joins</td></tr>
+        <tr><td>Graph (Neo4j)</td><td>Many-hop relationship traversals</td><td>Joins of depth N are the workload itself</td></tr>
+      </table>
+      <p><b>Default answer:</b> Postgres until a specific number (write QPS, data size, or access pattern) forces something else.</p>
+      <p class="qr-say">"I'd start with Postgres — our scale fits. If writes outgrow one leader or the access pattern is pure key-lookup at millions of QPS, I'd move that table to DynamoDB/Cassandra, chosen by access pattern first."</p>
+      <p>Full walkthrough: <a href="system-design.html#st-nosql-families">NoSQL families</a> · <a href="system-design.html#fw-data-model">data-model decision tree</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-btree-lsm" data-level="important" data-freq="4" data-type="concept" data-tags="b-tree,lsm,sstable,compaction,write amplification,rocksdb,innodb">
+    <header class="term-head"><h3>B-tree vs LSM tree</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>B-tree (Postgres, MySQL)</th><th>LSM (Cassandra, RocksDB)</th></tr>
+        <tr><td>Writes</td><td>In-place page update — random I/O</td><td>Append to memtable → flush SSTables — sequential I/O, much faster</td></tr>
+        <tr><td>Reads</td><td>One tree walk — predictable, fast</td><td>May check memtable + several SSTables (bloom filters help)</td></tr>
+        <tr><td>Background cost</td><td>Page splits, fragmentation</td><td>Compaction — write amplification, latency spikes</td></tr>
+        <tr><td>Sweet spot</td><td>Read-heavy, transactional</td><td>Write-heavy, ingest-heavy</td></tr>
+      </table>
+      <p><b>Default answer:</b> B-tree unless the workload is write-dominated (logs, events, metrics) — then LSM.</p>
+      <p class="qr-say">"LSM turns random writes into sequential appends, trading read amplification and compaction cost — that's why write-heavy stores like Cassandra use it."</p>
+      <p>Full walkthrough: <a href="system-design.html#st-btree-lsm">B-tree vs LSM</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-sharding" data-level="important" data-freq="5" data-type="concept" data-tags="sharding,key range,hash,consistent hashing,hot spot,rebalancing,scatter gather">
+    <header class="term-head"><h3>Key-range vs hash sharding</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Key-range (HBase, Spanner)</th><th>Hash (Dynamo, Cassandra)</th></tr>
+        <tr><td>Range scans</td><td>Efficient — adjacent keys colocated</td><td>Impossible without scatter-gather</td></tr>
+        <tr><td>Load distribution</td><td>Hot spots (sequential keys hammer one shard)</td><td>Uniform by construction</td></tr>
+        <tr><td>Rebalancing</td><td>Split/merge ranges dynamically</td><td>Consistent hashing: adding a node moves only ~1/N of keys (vs mod-N moving nearly all); virtual nodes smooth the ring</td></tr>
+        <tr><td>Shard key advice</td><td>Prefix with something high-cardinality</td><td>Choose the key your commonest query provides</td></tr>
+      </table>
+      <p><b>Default answer:</b> hash sharding on the primary lookup key; range only when range queries are the workload.</p>
+      <p class="qr-say">"I'd hash-shard by user_id — every query has it, load is uniform, and I don't need cross-user scans on this path."</p>
+      <p>Full walkthrough: <a href="system-design.html#st-sharding">Sharding</a> · <a href="system-design.html#st-shard-problems">shard problems</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-replication" data-level="important" data-freq="4" data-type="concept" data-tags="leader follower,multi-leader,leaderless,quorum,replication,failover,conflict">
+    <header class="term-head"><h3>Leader-follower vs multi-leader vs leaderless</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Topology</th><th>Writes</th><th>Cost</th><th>Use</th></tr>
+        <tr><td>Leader-follower</td><td>One leader; followers replicate</td><td>Replication lag, failover gap, write ceiling = one node</td><td>Default (Postgres, MySQL, Redis)</td></tr>
+        <tr><td>Multi-leader</td><td>A leader per region</td><td>Write conflicts need resolution (LWW loses data; CRDTs are work)</td><td>Multi-region write locality, offline apps</td></tr>
+        <tr><td>Leaderless (quorum)</td><td>Any replica; R + W &gt; N overlaps reads with writes</td><td>Sloppy quorums, read repair, no transactions</td><td>Dynamo/Cassandra — always-writable KV</td></tr>
+      </table>
+      <p><b>Default answer:</b> leader-follower; escalate only when multi-region write latency or availability demands it.</p>
+      <p class="qr-say">"Single-leader keeps a total order of writes and no conflicts — I give that up only when one region's write latency is unacceptable."</p>
+      <p>Full walkthrough: <a href="system-design.html#st-leader-follower">Leader-follower</a> · <a href="system-design.html#st-quorum">quorums</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-consistency" data-level="important" data-freq="5" data-type="concept" data-tags="strong consistency,eventual consistency,linearizability,read your writes,cap">
+    <header class="term-head"><h3>Strong vs eventual consistency</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Model</th><th>Guarantee</th><th>Price</th><th>Required for</th></tr>
+        <tr><td>Strong (linearizable)</td><td>Every read sees the latest write</td><td>Coordination on every op: latency + reduced availability under partition</td><td>Money, inventory, seat allocation, uniqueness (usernames)</td></tr>
+        <tr><td>Read-your-writes / session</td><td>You see your own updates</td><td>Sticky routing or leader reads per session</td><td>Profile edits, posting then refreshing</td></tr>
+        <tr><td>Eventual</td><td>Replicas converge, eventually</td><td>Stale reads, anomalies</td><td>Feeds, counters, likes, analytics — anywhere staleness is invisible</td></tr>
+      </table>
+      <p><b>Default answer:</b> eventual everywhere it's harmless, strong on the few invariants that lose money — say which is which per feature.</p>
+      <p class="qr-say">"Like-counts can be seconds stale; the seat map cannot oversell — so I pay for strong consistency only on the booking write."</p>
+      <p>Full walkthrough: <a href="system-design.html#st-consistency-models">Consistency models</a> · <a href="system-design.html#st-cap-pacelc">CAP/PACELC</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-cache-write" data-level="important" data-freq="5" data-type="pattern" data-tags="cache-aside,write-through,write-behind,ttl,invalidation,redis">
+    <header class="term-head"><h3>Cache-aside vs write-through vs write-behind</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Pattern</th><th>Flow</th><th>Risk</th><th>Use</th></tr>
+        <tr><td>Cache-aside</td><td>App reads cache; on miss reads DB + fills; writes go to DB + invalidate</td><td>Stale window, stampede on hot miss</td><td>Default — 90% of systems</td></tr>
+        <tr><td>Write-through</td><td>Write cache and DB synchronously</td><td>Write latency; caches data never read</td><td>Read-after-write must hit</td></tr>
+        <tr><td>Write-behind</td><td>Write cache, flush to DB async</td><td>Data loss on cache crash</td><td>Extreme write rates that tolerate loss (counters, views)</td></tr>
+      </table>
+      <p><b>Default answer:</b> cache-aside with TTL + explicit invalidation on write; single-flight to stop stampedes.</p>
+      <p class="qr-say">"Cache-aside with a TTL as backstop and delete-on-write — and I'd add request coalescing so one hot-key expiry doesn't stampede the DB."</p>
+      <p>Full walkthrough: <a href="system-design.html#ca-patterns">Cache patterns</a> · <a href="system-design.html#ca-stampede">stampedes</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-push-pull" data-level="important" data-freq="4" data-type="pattern" data-tags="push,pull,fan-out on write,fan-out on read,feeds,notifications,celebrity">
+    <header class="term-head"><h3>Push vs pull (feeds &amp; notifications)</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Push (fan-out on write)</th><th>Pull (fan-out on read)</th></tr>
+        <tr><td>Write cost</td><td>1 post → N follower-inbox writes</td><td>1 write</td></tr>
+        <tr><td>Read cost</td><td>Read your precomputed inbox — fast</td><td>Merge N followees' timelines at request time — slow</td></tr>
+        <tr><td>Breaks when</td><td>Celebrity: 100M-follower post = 100M writes</td><td>User follows thousands, reads often</td></tr>
+        <tr><td>Freshness</td><td>Fan-out lag after posting</td><td>Always current</td></tr>
+      </table>
+      <p><b>Default answer:</b> hybrid — push for normal users, pull for celebrity authors, merge at read.</p>
+      <p class="qr-say">"Push for the 99% with small followings, pull for accounts over ~100k followers, and merge both at read time — Twitter's actual answer."</p>
+      <p>Full walkthrough: <a href="system-design.html#dz-feed">News feed</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-queue-stream" data-level="important" data-freq="4" data-type="concept" data-tags="queue,stream,sqs,rabbitmq,kafka,replay,offset,consumer group">
+    <header class="term-head"><h3>Queues vs streams (SQS/Rabbit vs Kafka)</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Queue (SQS, RabbitMQ)</th><th>Stream/log (Kafka, Kinesis)</th></tr>
+        <tr><td>Consumption</td><td>Message deleted after ack — one consumer gets it</td><td>Log retained; consumers track offsets — many groups read independently</td></tr>
+        <tr><td>Replay</td><td>No</td><td>Yes — rewind offset, reprocess history</td></tr>
+        <tr><td>Ordering</td><td>Best-effort (FIFO variants limited)</td><td>Strict per partition (by key)</td></tr>
+        <tr><td>Sweet spot</td><td>Task/job distribution, work queues</td><td>Event backbone, multiple subscribers, high throughput</td></tr>
+      </table>
+      <p><b>Default answer:</b> queue for "do this task once"; Kafka when multiple consumers, replay, or ordered high-volume events matter.</p>
+      <p class="qr-say">"If one worker should process each job, SQS. If it's an event several systems care about — or I may need to replay — it's a Kafka topic."</p>
+      <p>Full walkthrough: <a href="system-design.html#async-queues-streams">Queues vs streams</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-sync-async" data-level="important" data-freq="4" data-type="pattern" data-tags="sync,async,rest,messaging,coupling,latency,saga">
+    <header class="term-head"><h3>Sync REST vs async messaging between services</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Sync call (REST/gRPC)</th><th>Async message (queue/stream)</th></tr>
+        <tr><td>User waits for result?</td><td>Yes — answer needed now</td><td>No — accept, 202, process later</td></tr>
+        <tr><td>Failure coupling</td><td>Callee down = you're down; retries amplify</td><td>Buffered; consumer catches up</td></tr>
+        <tr><td>Load spikes</td><td>Hit every service in the chain</td><td>Queue absorbs; workers drain at their pace</td></tr>
+        <tr><td>Complexity</td><td>Simple mental model</td><td>Eventual completeness, dedupe, DLQs, sagas</td></tr>
+      </table>
+      <p><b>Default answer:</b> sync only for what the user must see before the response; everything else (email, analytics, thumbnails, fan-out) async.</p>
+      <p class="qr-say">"The rule I use: does the user need this result to render the next screen? If not, it goes on a queue."</p>
+      <p>Full walkthrough: <a href="system-design.html#async-why">Why async</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-realtime" data-level="important" data-freq="4" data-type="concept" data-tags="websocket,sse,long polling,realtime,push,sticky,connection registry">
+    <header class="term-head"><h3>WebSocket vs SSE vs long polling</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Long polling</th><th>SSE</th><th>WebSocket</th></tr>
+        <tr><td>Direction</td><td>Server→client (per request)</td><td>Server→client stream</td><td>Full duplex</td></tr>
+        <tr><td>Infra cost</td><td>Works everywhere; reconnect churn</td><td>Plain HTTP, auto-reconnect, proxy-friendly</td><td>Stateful connections: registry, sticky routing, heartbeats</td></tr>
+        <tr><td>Use</td><td>Fallback, low-frequency updates</td><td>Notifications, live scores, tickers</td><td>Chat, games, collaborative editing</td></tr>
+      </table>
+      <p><b>Default answer:</b> SSE if traffic is one-way; WebSocket only when the client must also send in real time.</p>
+      <p class="qr-say">"Notifications are one-directional, so SSE — I only take on WebSocket's connection-state machinery when the client talks back, like chat typing indicators."</p>
+      <p>Full walkthrough: <a href="system-design.html#net-realtime">Realtime delivery</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-api-style" data-level="core" data-freq="3" data-type="concept" data-tags="rest,grpc,graphql,protobuf,n+1,public api,internal api">
+    <header class="term-head"><h3>REST vs gRPC vs GraphQL</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>REST</th><th>gRPC</th><th>GraphQL</th></tr>
+        <tr><td>Contract</td><td>Loose (OpenAPI optional)</td><td>Strict protobuf IDL, codegen</td><td>Typed schema, client picks fields</td></tr>
+        <tr><td>Performance</td><td>JSON over HTTP/1.1+</td><td>Binary + HTTP/2 streams — fastest</td><td>One round trip, but server-side N+1 risk</td></tr>
+        <tr><td>Best for</td><td>Public APIs, simple CRUD</td><td>Internal service-to-service</td><td>Aggregating many resources for varied UIs (BFF)</td></tr>
+      </table>
+      <p><b>Default answer:</b> REST at the public edge, gRPC inside, GraphQL only when many clients need different shapes of the same data.</p>
+      <p class="qr-say">"REST outside for ubiquity and caching, gRPC inside for typed contracts and latency — GraphQL earns its complexity only at an API-aggregation layer."</p>
+      <p>Full walkthrough: <a href="system-design.html#net-api-styles">API styles</a> · <a href="system-design.html#fw-api-design">API design</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-ratelimit-algo" data-level="important" data-freq="4" data-type="pattern" data-tags="token bucket,sliding window,fixed window,burst,429,rate limiting">
+    <header class="term-head"><h3>Token bucket vs sliding window</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Token bucket</th><th>Sliding window (counter/log)</th></tr>
+        <tr><td>Bursts</td><td>Allowed up to bucket size — usually what you want</td><td>Smoothly capped</td></tr>
+        <tr><td>Memory/op cost</td><td>2 numbers per key, O(1)</td><td>Counter: cheap approximation; log: exact but O(events)</td></tr>
+        <tr><td>Edge behavior</td><td>Refills continuously</td><td>Fixes fixed-window's 2× boundary burst</td></tr>
+        <tr><td>Used by</td><td>AWS, Stripe — the industry default</td><td>Cloudflare-style approximated windows</td></tr>
+      </table>
+      <p><b>Default answer:</b> token bucket per key in Redis, checked atomically with a Lua script.</p>
+      <p class="qr-say">"Token bucket: two numbers per key, O(1), and bursts are a feature — refill rate is the SLA, bucket size is the forgiveness."</p>
+      <p>Full walkthrough: <a href="system-design.html#rel-ratelimit-algos">Rate-limit algorithms</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-multiregion" data-level="important" data-freq="4" data-type="pattern" data-tags="active-active,active-passive,failover,rpo,rto,multi-region,dns">
+    <header class="term-head"><h3>Active-active vs active-passive multi-region</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Active-passive</th><th>Active-active</th></tr>
+        <tr><td>Normal ops</td><td>One region serves; standby replicates</td><td>All regions serve; users pinned near home</td></tr>
+        <tr><td>Failover</td><td>Promote standby: minutes of RTO, replication-lag RPO, rarely tested</td><td>Shift traffic: seconds, already proven working</td></tr>
+        <tr><td>Hard part</td><td>The failover runbook itself</td><td>Write conflicts / home-region routing for data</td></tr>
+        <tr><td>Cost</td><td>Idle standby fleet</td><td>Full capacity everywhere + conflict engineering</td></tr>
+      </table>
+      <p><b>Default answer:</b> active-passive for DR; active-active only when global latency or availability targets demand it — and then pin each user's writes to a home region.</p>
+      <p class="qr-say">"Active-active for the stateless tier is easy — the real question is the database; I'd keep single-leader writes per user via home-region pinning."</p>
+      <p>Full walkthrough: <a href="system-design.html#rel-multiregion">Multi-region</a> · <a href="system-design.html#ds-ha-topologies">HA topologies</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-monolith" data-level="core" data-freq="3" data-type="concept" data-tags="monolith,microservices,modular monolith,conway,operational cost">
+    <header class="term-head"><h3>Monolith vs microservices</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>Axis</th><th>Monolith (modular)</th><th>Microservices</th></tr>
+        <tr><td>Latency &amp; failures</td><td>In-process calls; one blast radius</td><td>Network everywhere: timeouts, retries, partial failure</td></tr>
+        <tr><td>Deploy &amp; scale</td><td>One unit; scale whole thing</td><td>Independent deploys; scale hot services alone</td></tr>
+        <tr><td>Org fit</td><td>One team or few</td><td>Many teams needing independent release cadence</td></tr>
+        <tr><td>Data</td><td>One DB, real transactions</td><td>DB per service → sagas, eventual consistency</td></tr>
+      </table>
+      <p><b>Default answer:</b> "monolith first" — split only when team scale or divergent scaling/deploy needs create real pain, and split along module boundaries you already drew.</p>
+      <p class="qr-say">"Microservices trade in-process calls for network calls to buy organizational scaling — with one team, I'd build a modular monolith and keep the option open."</p>
+      <p>Full walkthrough: <a href="system-design.html#fw-antipatterns">Anti-patterns</a></p>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="s-qr-designs">
+  <h2>3️⃣ 16 Designs in Recipe Form</h2>
+
+  <article class="term-card" id="qr-d-urlshort" data-level="core" data-freq="5" data-type="pattern" data-tags="url shortener,base62,redirect,tinyurl,302">
+    <header class="term-head"><h3>URL shortener</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 100M new URLs/month (~40 writes/s), read:write 100:1 → 4k redirects/s; ~3 TB over 5 years.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Key generation: counter + base62, ranges leased per app server — unique by construction, no collisions.</li>
+        <li>Storage: one KV table code→long_url, hash-sharded by code — only query is exact lookup.</li>
+        <li>Read path: Redis cache-aside — Zipf traffic means a small cache absorbs 90%+ of redirects.</li>
+        <li>Redirect: 302 not 301 — keeps clicks on your servers for analytics and expiry.</li>
+        <li>Analytics: click event → Kafka, fire-and-forget — never on the redirect's latency path.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Counter vs hash keys: counter when you can run a range-lease service; hash (with conditional-insert retry) when you want zero coordination + dedupe.</li>
+        <li>301 vs 302: 301 offloads traffic to browser caches; pick 302 whenever analytics or expiry is a requirement.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Code length?</b> → 62<sup>7</sup> ≈ 3.5T codes; 7 chars lasts millennia at this rate.</li>
+        <li><b>Sequential codes are enumerable?</b> → XOR with a secret, or pre-generated random key pool (KGS).</li>
+        <li><b>100× reads?</b> → Nothing interesting breaks: more cache + app replicas; DB sees only misses.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-urlshort">URL shortener</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-ratelimiter" data-level="core" data-freq="5" data-type="pattern" data-tags="rate limiter,token bucket,redis,lua,fail open,429">
+    <header class="term-head"><h3>Rate limiter (as a service)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 50k RPS across ~50 gateways, ~10M active keys, budget 1–2 ms per check.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Algorithm: token bucket — 2 numbers per key (tokens, last_refill), bursts allowed by design.</li>
+        <li>State: Redis cluster sharded by key — shared across all gateway nodes.</li>
+        <li>Atomicity: Lua script does read-refill-decide-write in one round trip — no check-then-set race.</li>
+        <li>Placement: in the API gateway/middleware, before auth-heavy work.</li>
+        <li>Response: 429 + Retry-After header; expose remaining-quota headers.</li>
+        <li>Rules: config service pushes limits (per user/IP/tenant/endpoint) to gateways; cache rules locally.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Fail open vs fail closed on Redis outage: fail open for product APIs (limiter must not be the outage); fail closed for auth/abuse endpoints.</li>
+        <li>Central Redis vs local counters: local (limit ÷ N nodes) is approximate but zero-latency; central is exact — hybrid: local pre-filter, central authority.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Race with two gateways checking at once?</b> → Lua script is atomic on the shard — single-threaded Redis serializes it.</li>
+        <li><b>Hot key (one huge tenant)?</b> → Split their bucket into K sub-buckets across shards, sum approximately.</li>
+        <li><b>Why not sliding-window log?</b> → O(events) memory per key; token bucket is O(1) with equivalent fairness.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-ratelimiter">Rate limiter</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-idgen" data-level="important" data-freq="4" data-type="pattern" data-tags="unique id,snowflake,uuidv7,clock skew,k-sorted">
+    <header class="term-head"><h3>Unique ID generator</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 10k+ IDs/s across many nodes; IDs must be unique, roughly time-sortable, 64-bit.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Layout (Snowflake): 41 bits timestamp-ms + 10 bits machine id + 12 bits sequence → 4096 IDs/ms/node, ~69 years.</li>
+        <li>Machine id: assigned via ZooKeeper/etcd lease at startup — never two nodes with the same id.</li>
+        <li>Clock skew: on clock going backwards, refuse to issue (wait) — never reuse a timestamp.</li>
+        <li>Alternative: UUIDv7 — time-ordered, no coordination, 128 bits; use when 64-bit isn't required.</li>
+        <li>Alternative: DB ranges — each node leases blocks of 1M ids; simple, IDs not time-ordered across nodes.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Snowflake vs UUIDv4: k-sorted IDs keep B-tree inserts append-like; random UUIDs fragment indexes — pick Snowflake/UUIDv7 for DB primary keys.</li>
+        <li>Coordination at startup (machine id) vs per-request: pay coordination once per boot, never per ID.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why time-sortable?</b> → Order-by-id ≈ order-by-time: free pagination cursors and index locality.</li>
+        <li><b>NTP steps the clock back 500 ms?</b> → Block issuance until the clock catches up, or bump sequence into a logical clock.</li>
+        <li><b>IDs leak creation rate?</b> → Yes (German-tank problem) — obfuscate if commercially sensitive.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-idgen">Unique ID generator</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-kvstore" data-level="tough" data-freq="4" data-type="pattern" data-tags="kv store,dynamo,quorum,consistent hashing,hinted handoff,gossip,merkle">
+    <header class="term-head"><h3>Distributed KV store (Dynamo-style)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 100k ops/s, 10 TB, always-writable, tunable consistency; N=3 replicas.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 220" role="img" aria-label="Consistent-hash ring with coordinator writing to 3 replicas, quorum W=2">
+          <circle cx="170" cy="110" r="80" class="wire"/>
+          <use href="#server" x="150" y="10" width="40" height="40"/><text x="170" y="66" text-anchor="middle" font-size="10" class="lbl-muted">node A</text>
+          <use href="#server" x="230" y="90" width="40" height="40"/><text x="250" y="146" text-anchor="middle" font-size="10" class="lbl-muted">B</text>
+          <use href="#server" x="150" y="170" width="40" height="40"/><text x="170" y="216" text-anchor="middle" font-size="10" class="lbl-muted">C</text>
+          <use href="#server" x="70" y="90" width="40" height="40"/><text x="90" y="146" text-anchor="middle" font-size="10" class="lbl-muted">D</text>
+          <text x="170" y="114" text-anchor="middle" font-size="11" class="lbl-muted">hash ring</text>
+          <use href="#user" x="380" y="20" width="40" height="40"/><text x="400" y="76" text-anchor="middle" font-size="10" class="lbl-muted">client</text>
+          <rect x="470" y="25" width="130" height="36" rx="8" class="box"/><text x="535" y="48" text-anchor="middle" font-size="11" class="lbl-light">coordinator</text>
+          <line x1="424" y1="42" x2="464" y2="42" class="wire-brand" marker-end="url(#arrow-brand)"/>
+          <rect x="660" y="15" width="120" height="30" rx="8" class="box-ok"/><text x="720" y="35" text-anchor="middle" font-size="11" class="lbl-light">replica 1 ack ✓</text>
+          <rect x="660" y="60" width="120" height="30" rx="8" class="box-ok"/><text x="720" y="80" text-anchor="middle" font-size="11" class="lbl-light">replica 2 ack ✓</text>
+          <rect x="660" y="105" width="120" height="30" rx="8" class="box-warn"/><text x="720" y="125" text-anchor="middle" font-size="11" class="lbl-light">replica 3 slow…</text>
+          <line x1="604" y1="35" x2="654" y2="30" class="wire-ok" marker-end="url(#arrow-ok)"/>
+          <line x1="604" y1="45" x2="654" y2="72" class="wire-ok" marker-end="url(#arrow-ok)"/>
+          <line x1="604" y1="55" x2="654" y2="115" class="wire" marker-end="url(#arrow-muted)"/>
+          <text x="470" y="90" font-size="11" fill="#28a745">W=2 of N=3 acked → success</text>
+          <text x="470" y="170" font-size="11" class="lbl-muted">R=2, W=2, N=3 → R+W&gt;N: reads overlap writes</text>
+          <text x="470" y="192" font-size="11" class="lbl-muted">key → position on ring → next N nodes hold it</text>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Partitioning: consistent hashing with virtual nodes — add/remove a node moves ~1/N of keys.</li>
+        <li>Replication: N=3 successors on the ring; any node can coordinate a request.</li>
+        <li>Consistency: quorum R+W&gt;N (2+2&gt;3 typical); tune per use (W=1 fast writes, R=1 fast reads).</li>
+        <li>Availability: sloppy quorum + hinted handoff — writes land on stand-ins during failures.</li>
+        <li>Conflicts: vector clocks (or LWW if losing writes is acceptable); read repair + Merkle-tree anti-entropy.</li>
+        <li>Membership: gossip protocol — no central coordinator to fail.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Quorum vs single-leader: pick quorum for always-writable AP behavior; pick a leader when you need transactions or ordered writes.</li>
+        <li>LWW vs vector clocks: LWW is simple but silently drops concurrent writes — fine for caches, wrong for carts.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why virtual nodes?</b> → Even load and even redistribution when hardware is heterogeneous.</li>
+        <li><b>Is R+W&gt;N linearizable?</b> → No — sloppy quorums and partial writes break it; it's "usually reads latest".</li>
+        <li><b>Node rejoins after an hour?</b> → Hinted handoff replays missed writes; Merkle diff catches the rest.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#st-quorum">Leaderless replication &amp; quorums</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-chat" data-level="tough" data-freq="5" data-type="pattern" data-tags="chat,whatsapp,websocket,connection registry,inbox,presence,delivery receipts">
+    <header class="term-head"><h3>Chat (WhatsApp)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 500M DAU, 50B msgs/day ≈ 600k msg/s avg; ~1M concurrent connections per gateway box possible, so ~500–1000 WS gateways.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 200" role="img" aria-label="Chat message path through websocket gateways, chat service, message store and push">
+          <use href="#user" x="20" y="40" width="42" height="42"/><text x="41" y="98" text-anchor="middle" font-size="10" class="lbl-muted">sender A</text>
+          <rect x="120" y="42" width="110" height="38" rx="8" class="box"/><text x="175" y="66" text-anchor="middle" font-size="11" class="lbl-light">WS gateway 1</text>
+          <rect x="300" y="42" width="120" height="38" rx="8" class="box2"/><text x="360" y="66" text-anchor="middle" font-size="11" class="lbl-light">chat service</text>
+          <use href="#db" x="310" y="130" width="44" height="44"/><text x="332" y="192" text-anchor="middle" font-size="10" class="lbl-muted">msg store (Cassandra)</text>
+          <use href="#cache" x="470" y="130" width="44" height="44"/><text x="492" y="192" text-anchor="middle" font-size="10" class="lbl-muted">registry: user→gateway</text>
+          <rect x="500" y="42" width="110" height="38" rx="8" class="box"/><text x="555" y="66" text-anchor="middle" font-size="11" class="lbl-light">WS gateway 7</text>
+          <use href="#user" x="680" y="40" width="42" height="42"/><text x="701" y="98" text-anchor="middle" font-size="10" class="lbl-muted">receiver B</text>
+          <rect x="640" y="140" width="140" height="34" rx="8" class="box-warn"/><text x="710" y="162" text-anchor="middle" font-size="11" class="lbl-light">offline → APNs/FCM</text>
+          <line x1="66" y1="61" x2="114" y2="61" class="wire-brand" marker-end="url(#arrow-brand)"/>
+          <line x1="230" y1="61" x2="294" y2="61" class="wire-brand" marker-end="url(#arrow-brand)"/>
+          <line x1="345" y1="84" x2="335" y2="126" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="245" y="112" font-size="10" fill="#28a745">1. persist</text>
+          <line x1="420" y1="75" x2="470" y2="130" class="wire" marker-end="url(#arrow-muted)"/><text x="420" y="112" font-size="10" class="lbl-muted">2. lookup B</text>
+          <line x1="424" y1="61" x2="494" y2="61" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="432" y="52" font-size="10" fill="#28a745">3. route</text>
+          <line x1="614" y1="61" x2="674" y2="61" class="wire-ok" marker-end="url(#arrow-ok)"/>
+          <line x1="590" y1="84" x2="660" y2="140" class="wire" marker-end="url(#arrow-muted)"/>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Transport: WebSocket gateways (stateless app tier can't hold connections — this tier is stateful by nature).</li>
+        <li>Registry: Redis user_id→gateway_id, written on connect, TTL'd by heartbeat — how messages find the receiver.</li>
+        <li>Persist-then-push: write to message store first, then route — device ack drives delivery receipts.</li>
+        <li>Storage: Cassandra/HBase, partition by conversation_id, cluster by message_id (time-ordered) — write-heavy, range-read by conversation.</li>
+        <li>Ordering: per-conversation sequence from the partition owner — global order is neither possible nor needed.</li>
+        <li>Offline: undelivered flag + push notification via APNs/FCM; client syncs missed messages on reconnect by last-seen id.</li>
+        <li>Groups: fan-out server-side to each member's gateway; large groups get pull-on-open past a size threshold.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Registry lookup vs pub/sub broadcast: registry is exact routing at lookup cost; pub/sub per-user channels simplify code but add broker hops.</li>
+        <li>Sent vs delivered vs read: one tick = server persisted, two = device acked — separate acks, separate failure modes.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Gateway dies with 1M connections?</b> → Clients reconnect via LB with jittered backoff; registry entries expire; messages queue as undelivered.</li>
+        <li><b>Presence at 500M users?</b> → Heartbeat every ~30 s into registry TTL; fan out presence lazily (only to open conversations).</li>
+        <li><b>E2E encryption impact?</b> → Server routes ciphertext blobs; server-side search/moderation of content becomes impossible.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-chat">Chat system</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-feed" data-level="tough" data-freq="5" data-type="pattern" data-tags="news feed,fanout,celebrity,timeline,twitter,instagram,cursor">
+    <header class="term-head"><h3>News feed (Twitter/Instagram)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 200M DAU, 1B feed reads/day (~10k QPS, peak 30k), 100M posts/day; avg 200 followers, max 100M.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 220" role="img" aria-label="Hybrid feed: fan-out on write for normal users, pull for celebrities, merged at read">
+          <use href="#user" x="20" y="20" width="40" height="40"/><text x="40" y="74" text-anchor="middle" font-size="10" class="lbl-muted">normal author</text>
+          <rect x="140" y="24" width="110" height="34" rx="8" class="box"/><text x="195" y="46" text-anchor="middle" font-size="11" class="lbl-light">post service</text>
+          <rect x="320" y="24" width="120" height="34" rx="8" class="box2"/><text x="380" y="46" text-anchor="middle" font-size="11" class="lbl-light">fan-out workers</text>
+          <use href="#cache" x="490" y="14" width="44" height="44"/><text x="512" y="74" text-anchor="middle" font-size="10" class="lbl-muted">inbox cache ×200</text>
+          <line x1="64" y1="41" x2="134" y2="41" class="wire-brand" marker-end="url(#arrow-brand)"/>
+          <line x1="250" y1="41" x2="314" y2="41" class="wire" marker-end="url(#arrow-muted)"/><text x="256" y="32" font-size="10" class="lbl-muted">queue</text>
+          <line x1="440" y1="41" x2="484" y2="38" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="430" y="24" font-size="10" fill="#28a745">push</text>
+          <use href="#user" x="20" y="130" width="40" height="40"/><text x="40" y="184" text-anchor="middle" font-size="10" class="lbl-muted">celebrity 100M</text>
+          <use href="#db" x="146" y="128" width="44" height="44"/><text x="168" y="188" text-anchor="middle" font-size="10" class="lbl-muted">posts by author</text>
+          <line x1="64" y1="150" x2="142" y2="150" class="wire-bad" marker-end="url(#arrow-bad)"/><text x="70" y="140" font-size="10" fill="#dc3545">no fan-out</text>
+          <rect x="600" y="90" width="120" height="40" rx="8" class="box"/><text x="660" y="115" text-anchor="middle" font-size="11" class="lbl-light">feed read API</text>
+          <use href="#user" x="740" y="90" width="40" height="40"/>
+          <line x1="536" y1="45" x2="600" y2="98" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="516" y="86" font-size="10" fill="#28a745">inbox</text>
+          <line x1="194" y1="150" x2="596" y2="118" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="330" y="150" font-size="10" fill="#667eea">pull celebrity posts at read → merge + rank</text>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Hybrid fan-out: push (write to each follower's inbox) for normal authors; pull at read time for authors &gt; ~100k followers.</li>
+        <li>Inbox: Redis sorted set per user of ~800 post IDs — IDs only; hydrate post content from a post cache at read.</li>
+        <li>Fan-out: async via queue — posting returns instantly; lag of seconds is invisible.</li>
+        <li>Read: merge inbox + celebrity pull + ranking; cursor pagination by post_id (time-sortable Snowflake IDs).</li>
+        <li>Storage: posts in sharded store by author_id; social graph service for follower lists.</li>
+        <li>Skip inactive users during fan-out — build their feed lazily on next visit.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Push vs pull: push buys fast reads with write amplification; pull is write-cheap but read-slow — the threshold follower count is the design.</li>
+        <li>IDs-only inboxes vs full posts: IDs cost one hydration hop but make edits/deletes trivial and inboxes 100× smaller.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Celebrity posts, 100M followers — why not push anyway?</b> → 100M writes for one tweet, minutes of lag, hot-spotting — one post = a small outage.</li>
+        <li><b>Deleted post still in inboxes?</b> → Inboxes hold IDs; hydration filters dead IDs — no 100M-inbox cleanup.</li>
+        <li><b>Offset vs cursor pagination?</b> → Feed shifts while paging; cursor (last seen post_id) is stable, offset double-shows items.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-feed">News feed</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-notify" data-level="important" data-freq="4" data-type="pattern" data-tags="notification,apns,fcm,email,sms,provider failover,dedupe,preferences">
+    <header class="term-head"><h3>Notification system</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 100M notifications/day (~1–10k/s bursty) across push, email, SMS; third-party providers do final delivery.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Ingest: one internal API — services publish notification events to a queue; never call providers inline.</li>
+        <li>Pipeline: workers per channel (APNs/FCM, SES, Twilio) consume queues, apply rate/retry per provider.</li>
+        <li>Preferences + quiet hours: check user settings service before send — a hard gate, not a filter after.</li>
+        <li>Dedupe: idempotency key (event_id + user + channel) in Redis — retries and double-publishes send once.</li>
+        <li>Templates: content rendered from template + payload at send time; localization here.</li>
+        <li>Tracking: provider webhooks (delivered/bounced/opened) feed back into a status store; DLQ for failures.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>At-least-once + dedupe vs at-most-once: duplicate pushes annoy, missing "your ride is here" is worse — dedupe key makes at-least-once safe.</li>
+        <li>Provider failover: multi-provider per channel with health-based routing vs simplicity of one — SMS/email deserve two, push can't (APNs is the only door to iOS).</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Provider is down 30 min?</b> → Queue buffers; retry with backoff; alert on queue age; fail over where a second provider exists.</li>
+        <li><b>User gets 50 notifications in a burst?</b> → Batch/digest window per user + per-user rate cap.</li>
+        <li><b>Ordering across channels?</b> → Don't promise it; channels are independent pipelines.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-notify">Notification system</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-typeahead" data-level="important" data-freq="3" data-type="pattern" data-tags="typeahead,autocomplete,trie,prefix,top-k,precompute">
+    <header class="term-head"><h3>Typeahead / autocomplete</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 10B queries/day, ~5 keystrokes each → ~500k lookups/s peak; p99 &lt; 50 ms end-to-end.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Precompute: offline pipeline aggregates query logs → top 5–10 suggestions per prefix, rebuilt daily.</li>
+        <li>Serve: prefix→suggestions as a flat KV/trie snapshot in memory, sharded by prefix — a lookup is one GET.</li>
+        <li>Cache at the edge: CDN/browser cache short prefixes; client caches and filters locally as the user types.</li>
+        <li>Freshness fast lane: streaming counter (last hours) merged with the daily batch for trending queries.</li>
+        <li>Client: debounce keystrokes (~100–200 ms), cancel stale requests.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Precomputed top-K vs live trie ranking: precompute makes serving trivial and fast; you accept hours of staleness (patched by the fast lane).</li>
+        <li>Shard by prefix vs hash: prefix sharding keeps a prefix's data on one shard but "a", "the" prefixes run hot — cache absorbs them.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Storage size?</b> → Prefixes of top ~100M queries × 10 suggestions ≈ tens of GB — fits in RAM, replicate everywhere.</li>
+        <li><b>Personalization?</b> → Client-side merge of a small per-user history list with global suggestions.</li>
+        <li><b>Filtering bad suggestions?</b> → Blocklist applied in the offline build, plus a kill switch at serve time.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-typeahead">Typeahead</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-crawler" data-level="tough" data-freq="3" data-type="pattern" data-tags="web crawler,frontier,politeness,robots.txt,dedupe,simhash">
+    <header class="term-head"><h3>Web crawler</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 1B pages/month ≈ 400 pages/s sustained; avg page 500 KB → ~200 MB/s download; billions of seen URLs.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 190" role="img" aria-label="Crawler loop: frontier queues, fetchers, parser, dedupe, back to frontier">
+          <rect x="20" y="60" width="130" height="70" rx="8" class="box2"/>
+          <text x="85" y="88" text-anchor="middle" font-size="11" class="lbl-light">URL frontier</text>
+          <text x="85" y="106" text-anchor="middle" font-size="10" class="lbl-light">per-host queues</text>
+          <text x="85" y="120" text-anchor="middle" font-size="10" class="lbl-light">priority + politeness</text>
+          <rect x="230" y="70" width="110" height="44" rx="8" class="box"/><text x="285" y="88" text-anchor="middle" font-size="11" class="lbl-light">fetchers</text><text x="285" y="104" text-anchor="middle" font-size="10" class="lbl-light">+ DNS cache</text>
+          <rect x="420" y="70" width="100" height="44" rx="8" class="box"/><text x="470" y="97" text-anchor="middle" font-size="11" class="lbl-light">parser</text>
+          <use href="#db" x="440" y="130" width="40" height="40"/><text x="462" y="185" text-anchor="middle" font-size="10" class="lbl-muted">content store (S3)</text>
+          <rect x="590" y="70" width="130" height="44" rx="8" class="box-warn"/><text x="655" y="88" text-anchor="middle" font-size="11" class="lbl-light">seen-URL filter</text><text x="655" y="104" text-anchor="middle" font-size="10" class="lbl-light">bloom + simhash</text>
+          <line x1="150" y1="92" x2="224" y2="92" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="160" y="82" font-size="10" fill="#667eea">next URL</text>
+          <line x1="340" y1="92" x2="414" y2="92" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="350" y="82" font-size="10" fill="#28a745">HTML</text>
+          <line x1="470" y1="114" x2="463" y2="128" class="wire" marker-end="url(#arrow-muted)"/>
+          <line x1="520" y1="92" x2="584" y2="92" class="wire" marker-end="url(#arrow-muted)"/><text x="524" y="82" font-size="10" class="lbl-muted">links</text>
+          <path d="M655 114 C 655 165, 300 175, 90 134" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="330" y="158" font-size="10" fill="#667eea">new URLs re-enter frontier</text>
+          <text x="230" y="40" font-size="10" class="lbl-muted">robots.txt cache · ≤1 req/s per host · timeout + retry budget</text>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Frontier: two-level queues — priority (freshness × pagerank) feeding per-host FIFO queues.</li>
+        <li>Politeness: one connection per host, delay between hits, robots.txt cached per domain — non-negotiable.</li>
+        <li>Fetchers: async I/O workers, DNS cached aggressively (DNS is a hidden bottleneck at 400/s).</li>
+        <li>Dedupe: bloom filter on normalized URL (seen?); simhash on content (near-duplicate pages).</li>
+        <li>Storage: raw HTML → object store; extracted links → frontier; metadata → KV (URL, hash, last-crawl).</li>
+        <li>Traps: max depth, max URLs/domain, URL-length caps — auto-generated infinite spaces are everywhere.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>BFS vs priority order: pure BFS wastes budget on junk; priority by importance/change-rate crawls what matters.</li>
+        <li>Bloom filter false positives: some URLs never crawled vs 10× memory for exact set — accept the tiny FP rate.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>How do you shard?</b> → Frontier by host-hash so one worker owns a host's politeness state.</li>
+        <li><b>Recrawl strategy?</b> → Per-URL change-frequency estimate; news hourly, static pages monthly.</li>
+        <li><b>JS-rendered pages?</b> → Headless-browser fleet ~100× the cost — reserve for the small set that needs it.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-crawler">Web crawler</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-topk" data-level="tough" data-freq="3" data-type="pattern" data-tags="top-k,trending,count-min sketch,heavy hitters,sliding window,lambda">
+    <header class="term-head"><h3>Top-K trending</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 10M events/s (views/hashtags), top 100 per window (1 min / 1 h / 1 day), answer in &lt;100 ms, small error OK.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Ingest: events → Kafka, partitioned by item hash — same item always hits the same counter node.</li>
+        <li>Fast path: count-min sketch + min-heap of K per node per window — fixed memory (~MBs) regardless of cardinality.</li>
+        <li>Merge: each node's local top-K → aggregator merges heaps per window → serve from cache.</li>
+        <li>Windows: ring of 1-min buckets; 1-h = sum of 60 buckets; expire old buckets.</li>
+        <li>Slow path (exact): the same Kafka stream → batch job (Spark) computes exact daily top-K, corrects the dashboard — lambda architecture.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Exact hash-map counts vs count-min sketch: exact needs memory ∝ distinct items (billions); sketch is fixed-size with small overcount — trending tolerates it.</li>
+        <li>Merged local top-Ks can miss a globally-hot-but-locally-cold item — partition by item hash so each item is counted whole on one node.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why does count-min only overcount?</b> → Hash collisions add, never subtract; take the min across d rows to bound it.</li>
+        <li><b>Sliding vs tumbling window?</b> → Sum the last N minute-buckets = sliding at bucket granularity — cheap and close enough.</li>
+        <li><b>K changes to 1000?</b> → Heap size per node grows; sketch unchanged — parameters are independent.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-topk">Top-K trending</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-ridehail" data-level="tough" data-freq="5" data-type="pattern" data-tags="uber,ride hailing,geohash,h3,dispatch,matching,driver location,surge">
+    <header class="term-head"><h3>Ride-hailing (Uber)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 1M concurrent drivers pinging location every 4 s → 250k location writes/s; 100k match requests/min at peak.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 200" role="img" aria-label="Uber: driver pings into geo-sharded in-memory index; rider request queries nearby cells; dispatch offers trip">
+          <use href="#user" x="20" y="20" width="40" height="40"/><text x="40" y="74" text-anchor="middle" font-size="10" class="lbl-muted">drivers ×1M</text>
+          <rect x="130" y="26" width="110" height="36" rx="8" class="box"/><text x="185" y="49" text-anchor="middle" font-size="11" class="lbl-light">location gw (WS)</text>
+          <rect x="310" y="16" width="150" height="60" rx="8" class="box2"/>
+          <text x="385" y="38" text-anchor="middle" font-size="11" class="lbl-light">geo index (in-mem)</text>
+          <text x="385" y="54" text-anchor="middle" font-size="10" class="lbl-light">H3 cell → driver set</text>
+          <text x="385" y="68" text-anchor="middle" font-size="10" class="lbl-light">sharded by cell</text>
+          <line x1="64" y1="42" x2="124" y2="42" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="66" y="32" font-size="10" fill="#667eea">ping /4s</text>
+          <line x1="240" y1="42" x2="304" y2="42" class="wire" marker-end="url(#arrow-muted)"/>
+          <use href="#user" x="20" y="130" width="40" height="40"/><text x="40" y="186" text-anchor="middle" font-size="10" class="lbl-muted">rider</text>
+          <rect x="130" y="134" width="110" height="36" rx="8" class="box"/><text x="185" y="157" text-anchor="middle" font-size="11" class="lbl-light">dispatch svc</text>
+          <line x1="64" y1="150" x2="124" y2="150" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="66" y="142" font-size="10" fill="#667eea">request</text>
+          <line x1="240" y1="146" x2="330" y2="80" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="240" y="120" font-size="10" fill="#28a745">query cell + ring of neighbors</text>
+          <rect x="540" y="60" width="120" height="36" rx="8" class="box-warn"/><text x="600" y="83" text-anchor="middle" font-size="11" class="lbl-light">offer → driver</text>
+          <line x1="460" y1="60" x2="534" y2="70" class="wire" marker-end="url(#arrow-muted)"/><text x="466" y="52" font-size="10" class="lbl-muted">ranked candidates (ETA)</text>
+          <use href="#db" x="690" y="120" width="42" height="42"/><text x="711" y="178" text-anchor="middle" font-size="10" class="lbl-muted">trips DB (SQL)</text>
+          <line x1="620" y1="100" x2="695" y2="126" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="590" y="120" font-size="10" fill="#28a745">accept → trip row</text>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Location ingest: driver app pings over WebSocket/UDP-ish channel every 4 s; last-known position only — history goes async to Kafka.</li>
+        <li>Geo index: H3/geohash cell → set of driver IDs, in memory (Redis GEO or custom), sharded by cell; a ping is a cell-set move.</li>
+        <li>Matching: query rider's cell + neighbor ring, rank by road-network ETA (not straight-line), offer to best driver with a ~15 s accept timeout, cascade on decline.</li>
+        <li>Lock: driver marked pending during an offer — one offer at a time per driver (no double-dispatch).</li>
+        <li>Trip state: SQL with a state machine (requested→matched→enroute→done) — this is the money record.</li>
+        <li>Surge: per-cell demand/supply ratio from the same counters, published to pricing.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Ephemeral in-memory locations vs durable store: positions are stale in 4 s anyway — durability buys nothing; rebuild from pings after a crash.</li>
+        <li>Cell size: big cells = fewer shards, hot downtown cells; small cells = more neighbor queries — H3 multi-resolution splits hot areas.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Two dispatchers pick the same driver?</b> → Atomic claim (conditional write) on driver state; loser cascades to next candidate.</li>
+        <li><b>Why not PostGIS for matching?</b> → 250k writes/s of churning point data murders a disk index; the working set is small and ephemeral.</li>
+        <li><b>City-border rides?</b> → Neighbor-cell queries cross shard boundaries; scatter to the 2–3 shards involved.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-ridehail">Ride-hailing</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-dropbox" data-level="important" data-freq="3" data-type="pattern" data-tags="dropbox,file sync,chunking,content addressing,dedupe,delta sync,presigned">
+    <header class="term-head"><h3>File sync / object storage (Dropbox)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 100M users, avg 10 GB → 1 EB logical; huge dedupe ratio; sync latency target seconds.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Chunking: files split into ~4 MB chunks, addressed by SHA-256 of content — dedupe, delta sync, and versioning all fall out of this one choice.</li>
+        <li>Two planes: metadata service (SQL: file→chunk list, versions, sharing) vs block store (S3: chunk blobs) — never mix.</li>
+        <li>Upload: client hashes chunks, asks "which do you already have?", uploads only missing chunks via presigned URLs — bytes bypass the app tier.</li>
+        <li>Sync: client watches FS, computes changed chunks; server notifies other devices via long-poll/WS "namespace changed", they pull the delta.</li>
+        <li>Versioning: a version = a new chunk list; old chunks retained → history is nearly free.</li>
+        <li>Conflicts: no locks — last writer wins on metadata, loser saved as "conflicted copy".</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Fixed-size vs content-defined chunking: fixed is simple but one inserted byte shifts every later chunk; CDC (rolling hash) keeps dedupe under edits.</li>
+        <li>Client-side dedupe check leaks "someone has this file" — rate-limit and salt per account if that matters.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why 4 MB chunks?</b> → Balance: smaller = better dedupe/resume but more metadata rows and requests.</li>
+        <li><b>10 GB file upload dies at 90%?</b> → Chunks are the resume unit — re-ask "which are missing", send the tail.</li>
+        <li><b>Shared folder with 1000 members updated?</b> → One metadata write + notify fan-out; chunks fetched lazily per device.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-storage">File sync &amp; storage</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-video" data-level="tough" data-freq="4" data-type="pattern" data-tags="youtube,video streaming,transcoding,cdn,abr,hls,dash,upload pipeline">
+    <header class="term-head"><h3>Video streaming (YouTube-lite)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 500 h of video uploaded/min; 1B watch-hours/day — views outnumber uploads ~1000:1, and ~all watch bytes come from CDN.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 210" role="img" aria-label="Video pipeline: upload to object store, async transcode to renditions, serve via CDN with ABR">
+          <use href="#user" x="15" y="30" width="40" height="40"/><text x="35" y="84" text-anchor="middle" font-size="10" class="lbl-muted">uploader</text>
+          <use href="#db" x="120" y="26" width="46" height="46"/><text x="143" y="88" text-anchor="middle" font-size="10" class="lbl-muted">raw store (S3)</text>
+          <line x1="59" y1="50" x2="116" y2="50" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="52" y="38" font-size="10" fill="#667eea">multipart</text>
+          <rect x="240" y="30" width="90" height="36" rx="8" class="box2"/><text x="285" y="53" text-anchor="middle" font-size="11" class="lbl-light">queue</text>
+          <line x1="170" y1="49" x2="234" y2="48" class="wire" marker-end="url(#arrow-muted)"/>
+          <rect x="390" y="14" width="150" height="72" rx="8" class="box"/>
+          <text x="465" y="36" text-anchor="middle" font-size="11" class="lbl-light">transcoder fleet</text>
+          <text x="465" y="52" text-anchor="middle" font-size="10" class="lbl-light">240p…4K × H.264/VP9</text>
+          <text x="465" y="68" text-anchor="middle" font-size="10" class="lbl-light">split by segment, parallel</text>
+          <line x1="330" y1="48" x2="384" y2="48" class="wire" marker-end="url(#arrow-muted)"/>
+          <use href="#db" x="590" y="26" width="46" height="46"/><text x="613" y="88" text-anchor="middle" font-size="10" class="lbl-muted">segments (HLS/DASH)</text>
+          <line x1="540" y1="50" x2="586" y2="50" class="wire-ok" marker-end="url(#arrow-ok)"/>
+          <rect x="560" y="130" width="110" height="40" rx="8" class="box-warn"/><text x="615" y="155" text-anchor="middle" font-size="11" class="lbl-light">CDN edge</text>
+          <line x1="613" y1="76" x2="613" y2="126" class="wire" marker-end="url(#arrow-muted)"/>
+          <use href="#user" x="700" y="130" width="40" height="40"/><text x="720" y="186" text-anchor="middle" font-size="10" class="lbl-muted">viewer</text>
+          <line x1="696" y1="150" x2="674" y2="150" class="wire-brand" marker-end="url(#arrow-brand)"/>
+          <text x="330" y="160" font-size="10" class="lbl-muted">player picks rendition per measured bandwidth (ABR) — 4-s segments</text>
+          <text x="330" y="180" font-size="10" class="lbl-muted">metadata DB: video → manifest → segment URLs</text>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Upload: multipart direct-to-S3 via presigned URLs; metadata row created in "processing" state.</li>
+        <li>Transcode: queue → worker fleet; split video into segments, transcode segments in parallel across machines, into a ladder of renditions (240p→4K).</li>
+        <li>Package: HLS/DASH — 2–6 s segments + a manifest listing every rendition.</li>
+        <li>Serve: everything static from CDN; origin is the object store. ABR: player switches rendition per segment based on throughput.</li>
+        <li>Metadata/views: DB for video info; view counts batched via stream, not per-view DB writes.</li>
+        <li>Popular-video problem is solved by the CDN; long-tail misses hit origin behind an origin shield.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Pre-transcode full ladder vs on-demand: pre-transcode everything popular (compute once, serve billions); lazy/partial ladders for the long tail to save cost.</li>
+        <li>Small segments = faster ABR switching + quicker startup vs more requests and manifest overhead — ~4 s is the industry compromise.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why not stream through your app servers?</b> → Bandwidth: 1B watch-hours/day is Tbps — only a CDN's edge capacity survives it.</li>
+        <li><b>Live streaming difference?</b> → Same segments, produced in real time; latency = segment length × buffer — hence LL-HLS partial segments.</li>
+        <li><b>Upload appears "ready" when?</b> → When the lowest rendition finishes — publish progressively, don't wait for 4K.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#net-cdn">CDN deep dive</a> · <a href="system-design.html#st-object-storage">object storage</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-payments" data-level="tough" data-freq="4" data-type="pattern" data-tags="payments,idempotency,ledger,psp,stripe,webhooks,reconciliation,double entry">
+    <header class="term-head"><h3>Payment processing</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 10k payments/s peak; correctness beats latency — losing or double-charging one payment is worse than 500 ms p99.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 210" role="img" aria-label="Payment flow: idempotent API, pending ledger entry, PSP call, webhook confirms, reconciliation">
+          <use href="#user" x="15" y="30" width="40" height="40"/><text x="35" y="84" text-anchor="middle" font-size="10" class="lbl-muted">client</text>
+          <rect x="120" y="26" width="130" height="48" rx="8" class="box"/>
+          <text x="185" y="46" text-anchor="middle" font-size="11" class="lbl-light">payment service</text>
+          <text x="185" y="62" text-anchor="middle" font-size="10" class="lbl-light">idempotency-key check</text>
+          <line x1="59" y1="50" x2="114" y2="50" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="42" y="24" font-size="10" fill="#667eea">POST /pay + Idempotency-Key</text>
+          <use href="#db" x="160" y="130" width="44" height="44"/><text x="182" y="188" text-anchor="middle" font-size="10" class="lbl-muted">ledger (append-only)</text>
+          <line x1="185" y1="74" x2="183" y2="126" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="196" y="105" font-size="10" fill="#28a745">1. PENDING row</text>
+          <rect x="360" y="26" width="110" height="48" rx="8" class="box2"/><text x="415" y="46" text-anchor="middle" font-size="11" class="lbl-light">PSP (Stripe)</text><text x="415" y="62" text-anchor="middle" font-size="10" class="lbl-light">card networks</text>
+          <line x1="250" y1="50" x2="354" y2="50" class="wire" marker-end="url(#arrow-muted)"/><text x="262" y="40" font-size="10" class="lbl-muted">2. authorize (same key)</text>
+          <path d="M415 74 C 415 130, 300 150, 208 150" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="330" y="132" font-size="10" fill="#667eea">3. webhook → SUCCEEDED</text>
+          <rect x="560" y="30" width="130" height="40" rx="8" class="box-warn"/><text x="625" y="55" text-anchor="middle" font-size="11" class="lbl-light">webhook handler</text>
+          <line x1="470" y1="45" x2="554" y2="45" class="wire" marker-end="url(#arrow-muted)"/><text x="480" y="35" font-size="10" class="lbl-muted">signed, retried</text>
+          <rect x="560" y="130" width="180" height="44" rx="8" class="box"/>
+          <text x="650" y="148" text-anchor="middle" font-size="11" class="lbl-light">reconciliation (nightly)</text>
+          <text x="650" y="164" text-anchor="middle" font-size="10" class="lbl-light">ledger vs PSP report diff</text>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Idempotency: client-generated key stored with the request; retries return the stored result — never a second charge. Pass the same key to the PSP.</li>
+        <li>Ledger: append-only double-entry (debit + credit rows, sum = 0); state machine PENDING→SUCCEEDED/FAILED; never UPDATE amounts.</li>
+        <li>PSP does the card work (PCI scope stays out of your systems); you orchestrate.</li>
+        <li>Webhooks: PSP confirms async; verify signature, dedupe by event id, treat as at-least-once. Don't trust the sync response alone.</li>
+        <li>Timeout on PSP call = UNKNOWN, not failed — query PSP status or wait for webhook before retrying the charge.</li>
+        <li>Reconciliation: nightly job diffs your ledger vs PSP settlement report — the safety net that catches every bug above.</li>
+        <li>Wallet/balance updates and receipts ride an outbox → queue, not the request path.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Sync authorize vs fully async: the user needs yes/no now → authorize sync with tight timeout; capture/settlement async saga.</li>
+        <li>Exactly-once is a lie at the network level — build at-least-once + idempotency at every hop instead.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Client retries after a 504 — did the charge happen?</b> → Idempotency key answers it: same key returns the original outcome.</li>
+        <li><b>Why append-only ledger?</b> → Auditability and correction-by-compensating-entry; mutable balances can't be audited.</li>
+        <li><b>Webhook arrives before your DB commit?</b> → Handler upserts by payment id — order-independent state machine transitions.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#ds-idempotency">Idempotency</a> · <a href="system-design.html#async-sagas">sagas</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-booking" data-level="tough" data-freq="5" data-type="pattern" data-tags="ticket booking,flash sale,seat hold,inventory,oversell,waiting room,ttl">
+    <header class="term-head"><h3>Ticket booking / flash sale</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 10M users hit an on-sale in the first minute (~150k RPS browse) contending for 50k seats — reads massive, writes scarce and contended.</p>
+      <figure class="qr-fig">
+        <svg viewBox="0 0 800 210" role="img" aria-label="Flash sale: waiting room meters users into seat-hold service with TTL, then payment confirms">
+          <use href="#user" x="10" y="20" width="36" height="36"/><use href="#user" x="34" y="44" width="36" height="36"/><use href="#user" x="10" y="68" width="36" height="36"/>
+          <text x="42" y="122" text-anchor="middle" font-size="10" class="lbl-muted">10M users</text>
+          <rect x="120" y="34" width="130" height="52" rx="8" class="box-warn"/>
+          <text x="185" y="55" text-anchor="middle" font-size="11" class="lbl-light">waiting room</text>
+          <text x="185" y="71" text-anchor="middle" font-size="10" class="lbl-light">queue token, metered</text>
+          <line x1="76" y1="60" x2="114" y2="60" class="wire-brand" marker-end="url(#arrow-brand)"/>
+          <rect x="320" y="20" width="120" height="38" rx="8" class="box"/><text x="380" y="44" text-anchor="middle" font-size="11" class="lbl-light">browse (cached)</text>
+          <use href="#cache" x="352" y="70" width="40" height="40"/><text x="374" y="124" text-anchor="middle" font-size="10" class="lbl-muted">seat map ~s stale</text>
+          <line x1="250" y1="50" x2="314" y2="42" class="wire" marker-end="url(#arrow-muted)"/><text x="256" y="34" font-size="10" class="lbl-muted">admitted @ capacity</text>
+          <rect x="520" y="20" width="130" height="52" rx="8" class="box2"/>
+          <text x="585" y="41" text-anchor="middle" font-size="11" class="lbl-light">hold service</text>
+          <text x="585" y="57" text-anchor="middle" font-size="10" class="lbl-light">seat lock, TTL 5 min</text>
+          <line x1="440" y1="40" x2="514" y2="40" class="wire-brand" marker-end="url(#arrow-brand)"/><text x="448" y="30" font-size="10" fill="#667eea">pick seat</text>
+          <use href="#db" x="560" y="110" width="44" height="44"/><text x="582" y="168" text-anchor="middle" font-size="10" class="lbl-muted">inventory DB (SQL)</text>
+          <line x1="585" y1="72" x2="583" y2="106" class="wire-ok" marker-end="url(#arrow-ok)"/><text x="596" y="94" font-size="10" fill="#28a745">conditional write</text>
+          <rect x="690" y="30" width="100" height="36" rx="8" class="box-ok"/><text x="740" y="53" text-anchor="middle" font-size="11" class="lbl-light">pay → book</text>
+          <line x1="650" y1="46" x2="684" y2="46" class="wire-ok" marker-end="url(#arrow-ok)"/>
+          <text x="660" y="120" font-size="10" class="lbl-muted">TTL expiry → seat</text>
+          <text x="660" y="134" font-size="10" class="lbl-muted">returns to pool</text>
+        </svg>
+      </figure>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Waiting room: token queue at the edge, admit at measured system capacity — overload becomes fair queueing with an ETA.</li>
+        <li>Browse path: seat map from cache, seconds stale, clearly non-authoritative — absorbs the 150k RPS.</li>
+        <li>Hold: SELECT seat → conditional write (status=FREE→HELD, version check) with a 5-min TTL — optimistic locking; losers get "seat taken".</li>
+        <li>Truth lives in one SQL inventory DB (per event) — strong consistency exactly where money meets scarcity.</li>
+        <li>Confirm: payment success flips HELD→BOOKED (saga with payment); TTL reaper returns abandoned holds.</li>
+        <li>Shard by event_id — one event's contention never touches another's.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Optimistic vs pessimistic locking: optimistic wins under UI-scale contention (conflicts resolved in ms); row locks held across user think-time would deadlock the sale.</li>
+        <li>Stale browse map vs live: live seat map = 150k RPS on the DB of record; stale + authoritative-check-at-hold is the honest design.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>How is oversell impossible?</b> → Single-row conditional transition FREE→HELD in one DB — no distributed write path to race.</li>
+        <li><b>User pays as TTL expires?</b> → Payment confirm re-validates hold atomically; expired → refund path, never a double-booked seat.</li>
+        <li><b>General-admission (10k identical tickets)?</b> → Decrement a counter (sharded into sub-counters if hot), not per-seat rows.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#dz-booking">Ticket booking</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="qr-d-metrics" data-level="important" data-freq="3" data-type="pattern" data-tags="metrics,logging,tsdb,downsampling,ingestion,prometheus,retention,observability pipeline">
+    <header class="term-head"><h3>Metrics / logging pipeline</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Scale assumption:</b> 10k hosts × 1k metrics × every 10 s = 1M datapoints/s; logs 1 TB/day; queries want "p99 of X, last 6 h" in &lt;1 s.</p>
+      <div class="explanation"><b>Recipe.</b><ul>
+        <li>Collect: agent per host aggregates locally (counters pre-summed per 10 s) — pull (Prometheus-style scrape) or push into Kafka.</li>
+        <li>Buffer: Kafka between producers and storage — absorbs spikes, lets storage restart without loss.</li>
+        <li>Store: TSDB (columnar, delta-of-delta + Gorilla compression ~1.4 B/point) sharded by metric-name hash + time.</li>
+        <li>Downsample: raw 10 s kept ~2 weeks → 1-min rollups 3 months → 1-h rollups 2 years — 99% storage cut, old data stays queryable.</li>
+        <li>Query: fan out to shards, merge; cache dashboard queries; alerting engine evaluates rules on the stream, not the store.</li>
+        <li>Logs are the same pipeline shape: agent → Kafka → indexer (ES/Loki) → tiered retention to S3.</li>
+      </ul></div>
+      <div class="pitfalls"><h4>Key trade-offs</h4><ul>
+        <li>Pull vs push: pull gives discovery + up/down detection for your own fleet; push for ephemeral jobs, edge, third parties.</li>
+        <li>Pre-aggregate percentiles: you can't average p99s — ship histograms and merge them, or accept per-host-only percentiles.</li>
+        <li>Cardinality is the real capacity limit — one user_id label turns 1k series into 100M; block unbounded labels at ingest.</li>
+      </ul></div>
+      <div class="followups"><h5>Interviewer will probe</h5><ul>
+        <li><b>Why a TSDB, not Postgres?</b> → Append-only time-ordered writes + range-scan reads + 10× compression — LSM/columnar is built for exactly this.</li>
+        <li><b>Losing 10 s of metrics OK?</b> → Yes — say it: at-least-once into Kafka, gaps tolerated; alerts must not silently miss, so alert on absence too.</li>
+        <li><b>Monitoring the monitoring?</b> → A tiny independent stack (different infra) watches the pipeline itself.</li>
+      </ul></div>
+      <p>Full walkthrough: <a href="system-design.html#rel-observability">Observability</a></p>
+    </div>
+  </article>
+</section>
+
+  <!-- CONTENT END -->
+  <footer class="foot"><p><a href="system-design.html">Full System Design guide →</a> · <a href="index.html">Back to hub</a></p></footer>
+</main>
+
+<button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+
+<script src="assets/highlight.js"></script>
+<script src="assets/guide.js"></script>
+</body>
+</html>

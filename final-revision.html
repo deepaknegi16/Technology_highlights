@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>48-Hour Revision Sheet</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>">
+<link rel="stylesheet" href="assets/guide.css">
+<style>
+.rev-rule { border-left: 4px solid var(--core); background: var(--core-soft); padding: 8px 14px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+@media print {
+  .topbar, .sidebar, .back-to-top { display: none !important; }
+  .term-card .term-body, .term-card .body { display: block !important; }
+  pre.code { break-inside: avoid; }
+}
+</style>
+</head>
+<body data-guide="revision" class="has-sidebar">
+
+<header class="topbar">
+  <button id="menu-btn" class="tb-btn menu-btn" type="button" aria-label="Menu">☰</button>
+  <a class="brand" href="index.html">⏰ 48-Hour Revision <small>· final sheet</small></a>
+  <div class="search"><input id="search" type="search" placeholder="Search topics… ( / )" aria-label="Search"></div>
+  <span class="spacer"></span>
+  <button id="theme-btn" class="tb-btn" type="button" aria-label="Toggle dark mode">🌙</button>
+  <span class="ring-wrap" title="Guide progress"></span>
+</header>
+
+<aside class="sidebar"><nav class="toc" aria-label="Table of contents"></nav></aside>
+
+<main class="container">
+  <header class="hero">
+    <h1>⏰ The Last 48 Hours</h1>
+    <p>Not for learning — for firing up what you already know. Bullets, tables, code. Read top to bottom, out loud.</p>
+  </header>
+
+  <!-- CONTENT START -->
+<section class="section" id="s-rev-plan">
+  <h2>1️⃣ The 48-Hour Plan</h2>
+
+  <article class="term-card" id="rev-plan" data-level="core" data-freq="5" data-type="concept" data-tags="plan,schedule,revision,day before,morning of,rules,sleep,timeboxing">
+    <header class="term-head"><h3>The schedule + the 5 rules</h3></header>
+    <div class="term-body">
+      <table class="cmp">
+        <tr><th>When</th><th>Time</th><th>Do exactly this</th></tr>
+        <tr><td><b>Day −2</b></td><td>4 h</td><td>2 h: your 3 weakest DSA topics from §2, re-solve each must-do
+          from scratch. 2 h: weakest of Java/Spring/system design — skim that guide's rapid-fires only.</td></tr>
+        <tr><td><b>Day −1</b></td><td>4 h</td><td>This page, top to bottom, narrating answers out loud (3 h).
+          Then 5 timed problems from §2 you haven't touched in a week (1 h, 12 min each).</td></tr>
+        <tr><td><b>Morning of</b></td><td>45 min</td><td>§3–§5 Q&amp;A lists only, spoken as if answering.
+          Latency numbers table in the <a href="system-design-quickref.html#qr-latency">quick reference</a>. Stop all prep
+          2 h before the interview.</td></tr>
+      </table>
+      <div class="rev-rule"><b>Rule 1 — sleep beats cramming.</b> 7+ h both nights. Recall under pressure comes
+        from sleep, not from hour 5 of revision.</div>
+      <div class="rev-rule"><b>Rule 2 — no new topics after Day −2.</b> A half-learned topic day-1 costs confidence on ten well-known ones.</div>
+      <div class="rev-rule"><b>Rule 3 — narrate out loud.</b> Interviews are spoken. If you can't say it, you don't have it yet.</div>
+      <div class="rev-rule"><b>Rule 4 — re-solve, don't re-read.</b> Reading a solution feels like knowing;
+        blank-editor recall is the only real test.</div>
+      <div class="rev-rule"><b>Rule 5 — pre-pack logistics day −1.</b> Links tested, IDE/whiteboard ready,
+        questions for the interviewer written. Zero decisions on the morning.</div>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="s-rev-dsa">
+  <h2>2️⃣ DSA: One Must-Do per Topic</h2>
+
+  <article class="term-card" id="rev-dsa-arrays" data-level="core" data-freq="5" data-type="code" data-tags="arrays,hashing,prefix sum,subarray sum equals k,hashmap">
+    <header class="term-head"><h3>Arrays / hashing — Subarray Sum Equals K</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> count contiguous subarrays whose sum equals k (negatives allowed).</p>
+      <div class="explanation"><b>Tell:</b> "subarray sum" + negatives → prefix sums in a HashMap. Sliding window
+        is wrong here — negatives break its monotonicity.<ul>
+        <li>Running <code>sum</code>; a subarray ending here sums to k iff some earlier prefix equals <code>sum − k</code>.</li>
+        <li>Map prefix → count of times seen; seed <code>{0:1}</code> for subarrays starting at index 0.</li>
+        <li>Look up first, then record the current prefix (order matters when k = 0).</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>int count = 0, sum = 0;
+Map&lt;Integer, Integer&gt; seen = new HashMap&lt;&gt;();
+seen.put(0, 1);                              // empty prefix
+for (int x : nums) {
+    sum += x;
+    <mark>count += seen.getOrDefault(sum - k, 0);</mark>
+    seen.merge(sum, 1, Integer::sum);
+}
+return count;</code></pre>
+      <p><b>Complexity:</b> O(n) time, O(n) space. <b>Follow-up they'll ask:</b> longest such subarray → store
+        <i>first index</i> of each prefix instead of counts.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-window" data-level="core" data-freq="5" data-type="code" data-tags="string,sliding window,longest substring without repeating,two pointers">
+    <header class="term-head"><h3>String / sliding window — Longest Substring Without Repeating</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> length of the longest substring with all distinct characters.</p>
+      <div class="explanation"><b>Tell:</b> "longest/shortest substring satisfying X" → grow right, shrink left; window state in a map/array.<ul>
+        <li>Track last index of each char; on a repeat inside the window, jump <code>left</code> past it.</li>
+        <li>Window <code>[left..r]</code> is always duplicate-free; answer = max width seen.</li>
+        <li><code>int[128]</code> beats a HashMap for ASCII — say that.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>int[] last = new int[128];
+Arrays.fill(last, -1);
+int best = 0, left = 0;
+for (int r = 0; r &lt; s.length(); r++) {
+    char c = s.charAt(r);
+    <mark>if (last[c] &gt;= left) left = last[c] + 1;</mark>  // jump past the duplicate
+    last[c] = r;
+    best = Math.max(best, r - left + 1);
+}
+return best;</code></pre>
+      <p><b>Complexity:</b> O(n) time, O(1) space (alphabet-bounded). <b>Follow-up they'll ask:</b> "at most K
+        distinct chars" → count map + shrink while <code>size &gt; K</code>.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-twoptr" data-level="core" data-freq="5" data-type="code" data-tags="two pointers,container with most water,greedy">
+    <header class="term-head"><h3>Two pointers — Container With Most Water</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> two lines from a height array form a container with the x-axis; maximize water area.</p>
+      <div class="explanation"><b>Tell:</b> sorted array or "best pair at opposite ends" → pointers from both ends, move one inward per step.<ul>
+        <li>Area = width × min(height). Moving the <i>taller</i> wall can only shrink area (width down, min capped).</li>
+        <li>So always move the shorter wall — the only move that might help. That's the whole proof; be ready to say it.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>int l = 0, r = h.length - 1, best = 0;
+while (l &lt; r) {
+    best = Math.max(best, (r - l) * Math.min(h[l], h[r]));
+    <mark>if (h[l] &lt; h[r]) l++; else r--;</mark>          // move the shorter wall
+}
+return best;</code></pre>
+      <p><b>Complexity:</b> O(n) time, O(1) space. <b>Follow-up they'll ask:</b> Trapping Rain Water — same two
+        pointers, but track <code>leftMax/rightMax</code> and sum per-cell water.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-binsearch" data-level="core" data-freq="5" data-type="code" data-tags="binary search,rotated sorted array,search space">
+    <header class="term-head"><h3>Binary search — Search in Rotated Sorted Array</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> find target in a sorted array rotated at an unknown pivot, O(log n), no duplicates.</p>
+      <div class="explanation"><b>Tell:</b> sorted-ish input + O(log n) demanded → binary search on a modified invariant.<ul>
+        <li>Key fact: at every <code>mid</code>, at least one half is fully sorted.</li>
+        <li>Identify the sorted half (<code>n[lo] &lt;= n[mid]</code>?), check if target lies inside it, keep that half or the other.</li>
+        <li>Use <code>&lt;=</code> on both range checks; off-by-ones live there.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>int lo = 0, hi = n.length - 1;
+while (lo &lt;= hi) {
+    int mid = (lo + hi) &gt;&gt;&gt; 1;
+    if (n[mid] == t) return mid;
+    <mark>if (n[lo] &lt;= n[mid]) {</mark>                     // left half sorted
+        if (n[lo] &lt;= t &amp;&amp; t &lt; n[mid]) hi = mid - 1; else lo = mid + 1;
+    } else {                                     // right half sorted
+        if (n[mid] &lt; t &amp;&amp; t &lt;= n[hi]) lo = mid + 1; else hi = mid - 1;
+    }
+}
+return -1;</code></pre>
+      <p><b>Complexity:</b> O(log n) time, O(1) space. <b>Follow-up they'll ask:</b> with duplicates → when
+        <code>n[lo] == n[mid] == n[hi]</code>, shrink both ends; worst case degrades to O(n).</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-stack" data-level="core" data-freq="5" data-type="code" data-tags="stack,valid parentheses,min stack,monotonic">
+    <header class="term-head"><h3>Stack — Valid Parentheses (+ Min Stack twist)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> is a string of <code>()[]{}</code> balanced and correctly nested?</p>
+      <div class="explanation"><b>Tell:</b> "most recent open thing must close first" → LIFO → stack. Nesting, undo, matching = stack.<ul>
+        <li>Trick: push the <i>expected closer</i>, so the closing branch is one comparison.</li>
+        <li>Fail cases: pop on empty, mismatch, non-empty at end.</li>
+        <li>Use <code>ArrayDeque</code>, never <code>java.util.Stack</code> (legacy, synchronized) — say it.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>Deque&lt;Character&gt; st = new ArrayDeque&lt;&gt;();
+for (char c : s.toCharArray()) {
+    switch (c) {
+        case '(' -&gt; st.push(')');
+        case '[' -&gt; st.push(']');
+        case '{' -&gt; st.push('}');
+        <mark>default  -&gt; { if (st.isEmpty() || st.pop() != c) return false; }</mark>
+    }
+}
+return st.isEmpty();</code></pre>
+      <p><b>Complexity:</b> O(n) time, O(n) space. <b>Follow-up they'll ask:</b> Min Stack — push a pair
+        <code>(val, minSoFar)</code> so <code>getMin()</code> is the top's second field, all ops O(1).</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-deque" data-level="tough" data-freq="5" data-type="code" data-tags="queue,deque,sliding window maximum,monotonic deque">
+    <header class="term-head"><h3>Queue / deque — Sliding Window Maximum</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> max of every window of size k, in O(n) total.</p>
+      <div class="explanation"><b>Tell:</b> "max/min of each sliding window" → monotonic deque of <i>indexes</i>, values decreasing front→back.<ul>
+        <li>Front = current window's max. Pop front when its index leaves the window.</li>
+        <li>Before pushing i, pop everything smaller from the back — they can never be a future max.</li>
+        <li>Each index pushed/popped once → amortized O(1) per element.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();      // indexes, values decreasing
+int[] out = new int[n.length - k + 1];
+for (int i = 0; i &lt; n.length; i++) {
+    if (!dq.isEmpty() &amp;&amp; dq.peekFirst() &lt;= i - k) dq.pollFirst();  // expired
+    <mark>while (!dq.isEmpty() &amp;&amp; n[dq.peekLast()] &lt;= n[i]) dq.pollLast();</mark>
+    dq.addLast(i);
+    if (i &gt;= k - 1) out[i - k + 1] = n[dq.peekFirst()];
+}
+return out;</code></pre>
+      <p><b>Complexity:</b> O(n) time, O(k) space — vs O(n log n) with a heap; know why the deque wins. <b>Follow-up
+        they'll ask:</b> sliding window <i>median</i> → two heaps with lazy deletion.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-list" data-level="tough" data-freq="5" data-type="code" data-tags="linked list,reverse k group,fast slow,cycle detection,floyd">
+    <header class="term-head"><h3>Linked list — Reverse Nodes in k-Groups</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> reverse a list k nodes at a time; a final group shorter than k stays as-is.</p>
+      <div class="explanation"><b>Tell:</b> any list-rewiring problem = the 3-pointer reverse loop
+        (<code>prev/head/next</code>) plus bookkeeping. Recursion keeps k-groups clean.<ul>
+        <li>Count k nodes ahead; fewer → return head untouched.</li>
+        <li>Recurse on the rest first, then reverse this group onto that result.</li>
+        <li>Iterative version: dummy head + reconnect group ends — mention it for O(1) space.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>public ListNode reverseKGroup(ListNode head, int k) {
+    ListNode node = head;
+    for (int i = 0; i &lt; k; i++) {            // is a full group present?
+        if (node == null) return head;       // no → leave the tail alone
+        node = node.next;
+    }
+    ListNode prev = reverseKGroup(node, k);  // rest is already done
+    for (int i = 0; i &lt; k; i++) {            // classic 3-pointer reverse
+        ListNode next = head.next;
+        <mark>head.next = prev; prev = head; head = next;</mark>
+    }
+    return prev;
+}</code></pre>
+      <p><b>Complexity:</b> O(n) time, O(n/k) recursion stack. <b>Follow-up they'll ask:</b> cycle detection —
+        Floyd fast/slow pointers; they meet inside a cycle, then reset one to head and walk both by 1 to find the cycle start.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-tree" data-level="tough" data-freq="5" data-type="code" data-tags="tree,level order,bfs,lca,lowest common ancestor,dfs">
+    <header class="term-head"><h3>Tree — Level Order + Lowest Common Ancestor</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem pair:</b> print a binary tree level by level; find the deepest node that has
+        both p and q beneath (or equal to) it.</p>
+      <div class="explanation"><b>Level order tell:</b> "by level / zigzag / right view" → BFS with a queue.<ul>
+        <li>Snapshot <code>int size = q.size()</code> per round; drain exactly that many → one list per level.</li>
+        <li>Zigzag/right-view are the same loop with a reverse flag or "last of level".</li>
+      </ul></div>
+      <div class="explanation"><b>LCA tell:</b> "common ancestor / distance between nodes" → post-order DFS returning found-ness upward.</div>
+      <pre class="code" data-lang="java"><code>TreeNode lca(TreeNode root, TreeNode p, TreeNode q) {
+    if (root == null || root == p || root == q) return root;
+    TreeNode l = lca(root.left, p, q);
+    TreeNode r = lca(root.right, p, q);
+    <mark>if (l != null &amp;&amp; r != null) return root;</mark>   // split point = answer
+    return l != null ? l : r;                    // bubble the found side up
+}</code></pre>
+      <p><b>Complexity:</b> both O(n) time; BFS O(width), DFS O(height) space. <b>Follow-up they'll ask:</b>
+        LCA with parent pointers → walk both up like intersecting linked lists, O(1) space.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-bst" data-level="core" data-freq="5" data-type="code" data-tags="bst,validate bst,kth smallest,inorder">
+    <header class="term-head"><h3>BST — Validate BST + Kth Smallest</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem pair:</b> is a binary tree a valid BST; find the kth smallest element in one.</p>
+      <div class="explanation"><b>Tell:</b> BST anywhere → think "inorder = sorted". Both problems fall out of that.<ul>
+        <li>Classic trap: checking only <code>child vs parent</code> — fails for a grandchild violating a
+          grandparent. Pass down <i>range bounds</i>.</li>
+        <li>Use <code>long</code> bounds (or null Integers) so <code>Integer.MIN/MAX_VALUE</code> node values don't break edges.</li>
+        <li>Kth smallest: inorder walk, decrement k, answer when k hits 0 — stop early.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>boolean valid(TreeNode n, long lo, long hi) {   // start: MIN, MAX
+    if (n == null) return true;
+    <mark>if (n.val &lt;= lo || n.val &gt;= hi) return false;</mark>
+    return valid(n.left, lo, n.val) &amp;&amp; valid(n.right, n.val, hi);
+}
+// kth smallest: inorder DFS, if (--k == 0) answer = n.val;</code></pre>
+      <p><b>Complexity:</b> O(n) / O(h) for validate; kth is O(h + k). <b>Follow-up they'll ask:</b> kth queried
+        often with inserts → store subtree sizes in nodes → O(log n) per query.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-heap" data-level="tough" data-freq="5" data-type="code" data-tags="heap,priority queue,merge k sorted lists,top k">
+    <header class="term-head"><h3>Heap — Merge K Sorted Lists</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> merge k sorted linked lists into one sorted list.</p>
+      <div class="explanation"><b>Tell:</b> "k sorted sources" or "top-K / Kth largest of a stream" → heap of size k.<ul>
+        <li>Heap holds one head node per list — the global min is always in there.</li>
+        <li>Poll min, append, push its <code>next</code>. n total nodes, each through the heap once.</li>
+        <li>Top-K rule: K <i>largest</i> → <i>min</i>-heap of size K (evict the smallest) — interviewers love this inversion.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>PriorityQueue&lt;ListNode&gt; pq = new PriorityQueue&lt;&gt;((a, b) -&gt; a.val - b.val);
+for (ListNode l : lists) if (l != null) pq.add(l);
+ListNode dummy = new ListNode(0), tail = dummy;
+while (!pq.isEmpty()) {
+    ListNode min = pq.poll();
+    tail.next = min; tail = min;
+    <mark>if (min.next != null) pq.add(min.next);</mark>
+}
+return dummy.next;</code></pre>
+      <p><b>Complexity:</b> O(n log k) time, O(k) space. <b>Follow-up they'll ask:</b> divide-and-conquer pairwise
+        merge — same O(n log k), no heap; and the comparator overflow trap (<code>a.val - b.val</code> → use
+        <code>Integer.compare</code>).</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-graph" data-level="tough" data-freq="5" data-type="code" data-tags="graph,number of islands,course schedule,topological sort,bfs,dfs,kahn">
+    <header class="term-head"><h3>Graph — Number of Islands + Course Schedule</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem pair:</b> count connected land regions in a grid; can n courses with prerequisites all be taken (cycle check)?</p>
+      <div class="explanation"><b>Islands tell:</b> grid + "connected regions" → flood fill.<ul>
+        <li>Scan cells; each unvisited '1' = +1 island, then DFS/BFS sink the whole component (mark '0').</li>
+        <li>Grid <i>is</i> the graph — no adjacency list; 4-direction deltas array.</li>
+      </ul></div>
+      <div class="explanation"><b>Course Schedule tell:</b> "prerequisites / build order / can finish" → topological sort (Kahn's BFS).</div>
+      <pre class="code" data-lang="java"><code>// Kahn: adj + indegree built from prereq edges
+Deque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+for (int i = 0; i &lt; n; i++) if (indeg[i] == 0) q.add(i);
+int seen = 0;
+while (!q.isEmpty()) {
+    int u = q.poll(); seen++;
+    <mark>for (int v : adj[u]) if (--indeg[v] == 0) q.add(v);</mark>
+}
+return seen == n;                     // seen &lt; n → cycle → impossible</code></pre>
+      <p><b>Complexity:</b> both O(V+E) time. <b>Follow-up they'll ask:</b> return the actual order (record
+        polls); islands follow-up — count <i>distinct</i> island shapes → canonical path signature per DFS.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-dsa-dp" data-level="tough" data-freq="5" data-type="code" data-tags="dp,dynamic programming,coin change,lis,unbounded knapsack,binary search">
+    <header class="term-head"><h3>DP — Coin Change (+ LIS one-liner)</h3></header>
+    <div class="term-body">
+      <p class="why"><b>Problem:</b> fewest coins (unlimited reuse) summing to <code>amount</code>; −1 if impossible.</p>
+      <div class="explanation"><b>Tell:</b> "min/max ways to reach a total, items reusable" → unbounded knapsack, 1-D bottom-up.<ul>
+        <li>State: <code>dp[a]</code> = min coins to make amount a. Transition: best over <code>dp[a − coin] + 1</code>.</li>
+        <li>Greedy fails — coins {1,3,4}, amount 6: greedy 4+1+1=3 vs DP 3+3=2. Have this counter-example ready.</li>
+        <li>Fill with <code>amount+1</code> as infinity; unreachable stays &gt; amount.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>int[] dp = new int[amount + 1];
+Arrays.fill(dp, amount + 1);                 // "infinity"
+dp[0] = 0;
+for (int a = 1; a &lt;= amount; a++)
+    for (int c : coins)
+        <mark>if (c &lt;= a) dp[a] = Math.min(dp[a], dp[a - c] + 1);</mark>
+return dp[amount] &gt; amount ? -1 : dp[amount];</code></pre>
+      <p><b>Complexity:</b> O(amount × coins) time, O(amount) space. <b>LIS one-liner:</b> keep a <code>tails</code>
+        array; binary-search each element's insertion point and overwrite → O(n log n); array length = LIS length.</p>
+      <p><b>Follow-up they'll ask:</b> count <i>ways</i> instead of min coins → same loop, <code>dp[a] +=
+        dp[a−c]</code>, coins outer to avoid counting permutations.</p>
+      <p>Deep dive: <a href="dsa.html">DSA guide</a></p>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="s-rev-java">
+  <h2>3️⃣ Java in 20 Answers</h2>
+
+  <article class="term-card" id="rev-java-jvm" data-level="core" data-freq="5" data-type="concept" data-tags="jvm,gc,heap,g1,zgc,oom,jit,class loading,metaspace">
+    <header class="term-head"><h3>JVM &amp; GC (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Heap layout in one breath?</b> — Young gen (eden + two survivors, most objects die here, cheap
+          minor GCs) + old gen (survivors promoted after aging); classes/metadata live off-heap in metaspace; thread stacks
+          are per-thread and hold frames + references.</li>
+        <li><b>Which GC and why?</b> — G1 is the default: region-based, pause-target driven, fine for most
+          services. ZGC when you need &lt;1 ms pauses on huge heaps; Parallel when pure throughput (batch) beats latency.
+          Say "I'd change GC only after measuring".</li>
+        <li><b>OOM triage?</b> — <code>-XX:+HeapDumpOnOutOfMemoryError</code>, open the dump in MAT/JFR, find
+          dominator-tree heavyweights; usual suspects: unbounded caches/maps, listener leaks, ThreadLocals in pools.
+          Metaspace OOM → classloader leak (redeploys).</li>
+        <li><b>JIT in two lines?</b> — Bytecode is interpreted first; hot methods are compiled (C1→C2), inlined,
+          and speculatively optimized with deoptimization as a safety net. That's why benchmarks need warm-up (use JMH).</li>
+        <li><b>Class loading?</b> — Load → link (verify/prepare/resolve) → initialize (statics,
+          <code>&lt;clinit&gt;</code>), lazily on first use; parent-delegation: app loader asks platform asks bootstrap
+          first, so you can't shadow <code>java.lang.String</code>.</li>
+      </ul>
+      <p>Deep dive: <a href="java.html#s-jvm">Java guide — JVM internals</a> · <a href="java.html#tune-oom">OOM playbook</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-java-coll" data-level="core" data-freq="5" data-type="concept" data-tags="collections,hashmap,concurrenthashmap,arraylist,linkedlist,treemap,fail fast">
+    <header class="term-head"><h3>Collections (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>HashMap internals?</b> — Array of buckets, index = <code>hash &amp; (n−1)</code> (n is a power
+          of 2, hash is spread by XOR of high bits); collisions chain as a list, treeify to red-black at 8 nodes (when
+          table ≥ 64); resize doubles at load factor 0.75 and splits each bucket into two.</li>
+        <li><b>Fail-fast means?</b> — Iterators snapshot <code>modCount</code>; structural modification outside
+          the iterator throws <code>ConcurrentModificationException</code> on a best-effort basis — it's a bug detector,
+          not a thread-safety guarantee. Remove via the iterator or <code>removeIf</code>.</li>
+        <li><b>ConcurrentHashMap?</b> — Lock-free reads, CAS for empty-bucket inserts, per-bucket synchronized
+          for the rest; no table-wide lock, no CME (weakly consistent iterators). Use <code>compute/merge</code> for atomic
+          read-modify-write; size() is an estimate under concurrency.</li>
+        <li><b>ArrayList vs LinkedList honestly?</b> — ArrayList wins ~always: O(1) indexed access, cache-friendly,
+          amortized O(1) append. LinkedList's O(1) insert needs an iterator already positioned; per-node allocations wreck
+          cache locality. Real answer: "ArrayList, or ArrayDeque for queue ends".</li>
+        <li><b>When TreeMap?</b> — Sorted keys with range queries: <code>firstKey/floorKey/headMap/subMap</code>
+          — think leaderboards, time-indexed lookups, "nearest entry ≤ x". O(log n) everything; comparator must be consistent
+          with equals.</li>
+      </ul>
+      <p>Deep dive: <a href="java.html#coll-hashmap-internals">HashMap internals</a> · <a href="java.html#s-collections">Collections section</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-java-conc" data-level="important" data-freq="5" data-type="concept" data-tags="concurrency,volatile,synchronized,happens-before,thread pool,completablefuture,virtual threads,deadlock">
+    <header class="term-head"><h3>Concurrency (6)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>volatile vs synchronized?</b> — volatile = visibility + ordering for one variable, no atomicity
+          (<code>count++</code> still races). synchronized = mutual exclusion + visibility for a block. Rule: single flag
+          → volatile; compound state or check-then-act → lock or atomics.</li>
+        <li><b>Happens-before in one breath?</b> — The JMM only guarantees a read sees a write if a happens-before
+          chain links them: program order, monitor unlock→lock, volatile write→read, <code>Thread.start()</code>/<code>join()</code>.
+          No chain → no guarantee, regardless of wall-clock timing.</li>
+        <li><b>Thread pool sizing?</b> — CPU-bound: ~cores. I/O-bound: cores × (1 + wait/compute) — or stop
+          sizing and use virtual threads. Always bound the queue and name the pool; unbounded queues turn overload into
+          OOM instead of rejection.</li>
+        <li><b>CompletableFuture?</b> — Compose async steps: <code>supplyAsync → thenApply/thenCompose →
+          exceptionally</code>; combine with <code>thenCombine/allOf</code>. Traps: default ForkJoin commonPool for blocking
+          work (pass an executor), and forgetting <code>join()</code>/exception handling swallows failures.</li>
+        <li><b>Virtual threads?</b> — JDK 21 user-mode threads: millions of cheap, blockable threads mounted on
+          few carriers — thread-per-request without pools for I/O-bound services. Pinning caveat: <code>synchronized</code>
+          around blocking I/O pins the carrier (pre-24) → prefer ReentrantLock there. No help for CPU-bound work.</li>
+        <li><b>Deadlock diagnosis?</b> — <code>jstack</code>/thread dump; the JVM prints "Found one Java-level
+          deadlock" with both cycles. Fix: global lock ordering, <code>tryLock</code> with timeout, or shrink to one lock.
+          Mention livelock/starvation as the cousins.</li>
+      </ul>
+      <p>Deep dive: <a href="java.html#s-concurrency">Concurrency section</a> · <a href="java.html#conc-jmm">JMM</a>
+        · <a href="java.html#conc-virtual-threads">Virtual threads</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-java-lang" data-level="core" data-freq="5" data-type="concept" data-tags="records,sealed,streams,parallel stream,equals,hashcode,string pool">
+    <header class="term-head"><h3>Language &amp; streams (4)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Records &amp; sealed?</b> — <code>record</code> = nominal immutable data carrier: final fields,
+          canonical constructor (validate there), equals/hashCode/toString generated. <code>sealed</code> = closed hierarchy
+          → compiler-checked exhaustive <code>switch</code> pattern matching; together they give you ADTs.</li>
+        <li><b>Streams laziness + parallel trap?</b> — Intermediate ops build a recipe; nothing runs until a
+          terminal op, then one fused pass (short-circuits with <code>findFirst/limit</code>). <code>parallelStream()</code>
+          uses the shared commonPool: wrong for small data, I/O, or stateful lambdas — measure before using, never in request paths.</li>
+        <li><b>equals/hashCode contract?</b> — Equal objects must have equal hash codes (reverse not required).
+          Break it and hash collections lose your object: stored in bucket for old hash, looked up in bucket for new.
+          Corollaries: never mutate a key's hash fields; override both or neither.</li>
+        <li><b>String pool?</b> — Literals are interned and shared in a heap pool: <code>"a" == "a"</code> is
+          true, <code>new String("a")</code> makes a fresh object. Always compare with <code>equals</code>; compile-time
+          constant concat is pooled, runtime concat is not.</li>
+      </ul>
+      <p>Deep dive: <a href="java.html#oop-records">Records</a> · <a href="java.html#fn-parallel">Parallel
+        streams</a> · <a href="java.html#oop-equals-hashcode">equals/hashCode</a> · <a href="java.html#str-pool">String pool</a></p>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="s-rev-spring">
+  <h2>4️⃣ Spring Boot in 20 Answers</h2>
+
+  <article class="term-card" id="rev-spring-core" data-level="core" data-freq="5" data-type="concept" data-tags="spring core,bean lifecycle,component,bean,circular dependency,configuration proxy,scopes">
+    <header class="term-head"><h3>Core container (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Bean lifecycle in one breath?</b> — Scan/read definitions → BeanFactoryPostProcessors tweak
+          definitions → for each bean: instantiate → populate dependencies → Aware callbacks → BPP before-init →
+          <code>@PostConstruct</code> → <code>afterPropertiesSet</code> → init-method → BPP after-init (AOP proxies born
+          here) → use → <code>@PreDestroy</code> on shutdown.</li>
+        <li><b>@Component vs @Bean?</b> — <code>@Component</code>: class you own, found by scanning.
+          <code>@Bean</code>: factory method inside <code>@Configuration</code> — for third-party types or when construction
+          needs logic. Same container result, different registration route.</li>
+        <li><b>Circular dependencies?</b> — A needs B needs A. Singleton field/setter injection survives via
+          the early-reference third-level cache; constructor injection fails fast (Boot 2.6+ rejects cycles by default).
+          Right fix: break the cycle (extract a third bean), not <code>@Lazy</code> duct tape.</li>
+        <li><b>@Configuration proxying?</b> — Full mode CGLIB-subclasses the config class so <code>@Bean</code>-method
+          calls between beans return the container singleton. In lite mode (<code>@Component</code> + <code>@Bean</code>,
+          or <code>proxyBeanMethods=false</code>) <code>this.otherBean()</code> is a plain call → a second unmanaged instance.</li>
+        <li><b>Scopes gotcha?</b> — Singleton (default) and prototype; injecting a prototype into a singleton
+          freezes one instance forever — fix with <code>ObjectProvider</code> or scoped proxy. Request/session scopes
+          exist for web state.</li>
+      </ul>
+      <p>Deep dive: <a href="spring-boot.html#core-lifecycle">Bean lifecycle</a> · <a href="spring-boot.html#core-circular">Circular
+        deps</a> · <a href="spring-boot.html#core-component-bean">@Component vs @Bean</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-spring-webdata" data-level="core" data-freq="5" data-type="concept" data-tags="mvc,request flow,dispatcherservlet,transactional,self-invocation,n+1,validation,jpa">
+    <header class="term-head"><h3>Web &amp; data (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Request flow in one breath?</b> — Servlet container → security/other filters → <code>DispatcherServlet</code>
+          → HandlerMapping picks the controller method → interceptors preHandle → argument resolvers bind/validate → your
+          method → return value handled (Jackson via <code>HttpMessageConverter</code>) → exception resolvers /
+          <code>@ControllerAdvice</code> if thrown.</li>
+        <li><b>@Transactional rules?</b> — Works via proxy: public external calls only; rollback on unchecked
+          by default (checked needs <code>rollbackFor</code>); keep transactions short, never call remote services inside
+          one; <code>readOnly=true</code> for queries; propagation REQUIRED default, REQUIRES_NEW for audit-must-commit.</li>
+        <li><b>Self-invocation trap?</b> — <code>this.otherMethod()</code> bypasses the proxy → no
+          transaction/cache/async applied. Fix: move the method to another bean, or inject self/use <code>TransactionTemplate</code>.
+          Same trap for <code>@Cacheable</code> and <code>@Async</code>.</li>
+        <li><b>N+1 fixes?</b> — Detect: SQL logging / p6spy shows 1 parent query + N child queries. Fix: <code>join
+          fetch</code> in JPQL, <code>@EntityGraph</code>, or batch fetching (<code>default_batch_fetch_size</code>). Root
+          cause: lazy association touched in a loop; DTO projections skip entities entirely.</li>
+        <li><b>Validation?</b> — <code>@Valid</code> on the <code>@RequestBody</code> param triggers Bean
+          Validation (<code>@NotNull, @Size</code>…) → <code>MethodArgumentNotValidException</code> → map to 400 in
+          <code>@ControllerAdvice</code>. Nested objects need <code>@Valid</code> on the field; class-level rules via
+          custom constraint.</li>
+      </ul>
+      <p>Deep dive: <a href="spring-boot.html#web-request-lifecycle">Request lifecycle</a> ·
+        <a href="spring-boot.html#data-transactional">@Transactional</a> · <a href="spring-boot.html#data-fetching-n1">N+1</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-spring-sec" data-level="important" data-freq="5" data-type="concept" data-tags="security,filter chain,jwt,aop,proxy limitations,securitycontext">
+    <header class="term-head"><h3>Security &amp; AOP (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Filter chain in one breath?</b> — One servlet filter (<code>FilterChainProxy</code>) delegates
+          to an ordered <code>SecurityFilterChain</code>: CORS → CSRF → auth filters (JWT/Basic/form) populate the
+          <code>SecurityContext</code> → exception translation (401 vs 403) → authorization filter checks rules last.
+          Configured as a <code>SecurityFilterChain</code> bean, not the old adapter.</li>
+        <li><b>JWT flow?</b> — Login issues a signed token (claims + expiry); each request sends <code>Authorization:
+          Bearer</code>; a once-per-request filter validates signature + expiry and sets the <code>Authentication</code>;
+          server stays stateless (<code>SessionCreationPolicy.STATELESS</code>). Revocation is the weak spot → short TTL
+          + refresh tokens.</li>
+        <li><b>401 vs 403?</b> — 401 unauthenticated (who are you?) from the entry point; 403 authenticated but
+          not allowed (access denied handler). Interviewers use it to test if you understand the exception-translation filter.</li>
+        <li><b>AOP proxy limitations?</b> — Spring AOP = runtime proxies: only public method calls entering the
+          bean from outside are advised. Self-invocation, private/final methods, and field access are invisible. JDK proxy
+          needs an interface; CGLIB subclasses (default in Boot).</li>
+        <li><b>@PreAuthorize?</b> — Method security (<code>@EnableMethodSecurity</code>) with SpEL:
+          <code>hasRole('ADMIN')</code>, <code>#id == principal.id</code>. Same proxy caveats; prefer it on service layer,
+          URL rules for coarse gates.</li>
+      </ul>
+      <p>Deep dive: <a href="spring-boot.html#sec-architecture">Security architecture</a> ·
+        <a href="spring-boot.html#sec-jwt">JWT</a> · <a href="spring-boot.html#aop-self-invocation">Self-invocation</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-spring-boot" data-level="core" data-freq="5" data-type="concept" data-tags="auto-configuration,property precedence,actuator,test slices,conditional">
+    <header class="term-head"><h3>Boot &amp; ops (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Auto-configuration in one breath?</b> — <code>@EnableAutoConfiguration</code> imports config
+          classes listed in <code>AutoConfiguration.imports</code> from every starter; each applies only if its
+          <code>@ConditionalOn…</code> (class present, bean missing, property set) holds — so your own <code>@Bean</code>
+          silently wins over the default. Debug with <code>--debug</code> condition report.</li>
+        <li><b>Property precedence top-5?</b> — Highest first: command-line args → OS env vars → profile-specific
+          <code>application-{profile}.yml</code> → <code>application.yml</code> outside the jar → inside the jar. Devops
+          overrides beat packaged defaults; that's the whole design.</li>
+        <li><b>Actuator?</b> — Production endpoints: <code>/health</code> (liveness/readiness groups for k8s),
+          <code>/metrics</code> via Micrometer, <code>/env</code>, <code>/threaddump</code>, <code>/heapdump</code>. Expose
+          selectively, lock behind auth — <code>/env</code> and <code>/heapdump</code> leak secrets.</li>
+        <li><b>Test slices?</b> — <code>@WebMvcTest</code> (controllers + MockMvc, no services), <code>@DataJpaTest</code>
+          (repos + rollback tx + embedded/Testcontainers DB), <code>@SpringBootTest</code> full context last resort. Slices
+          load less → faster, sharper failures; mock the missing edges with <code>@MockitoBean</code>.</li>
+        <li><b>Startup too slow — what do you check?</b> — Condition evaluation report, lazy init flag, context
+          caching in tests, and who's doing I/O in <code>@PostConstruct</code>. Shows ops maturity in one answer.</li>
+      </ul>
+      <p>Deep dive: <a href="spring-boot.html#boot-autoconfig">Auto-configuration</a> ·
+        <a href="spring-boot.html#boot-config-precedence">Property precedence</a> ·
+        <a href="spring-boot.html#boot-testing">Testing</a></p>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="s-rev-micro">
+  <h2>5️⃣ Microservices in 15 Answers</h2>
+
+  <article class="term-card" id="rev-micro-comm" data-level="core" data-freq="5" data-type="concept" data-tags="sync vs async,saga,2pc,outbox,idempotency,events,kafka">
+    <header class="term-head"><h3>Communication &amp; data (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Sync vs async — the decision?</b> — Sync (REST/gRPC) when the caller needs the answer to proceed
+          (auth check, price quote). Async (events/queues) when it doesn't (notifications, projections, anything retryable)
+          — async decouples uptime and absorbs spikes, at the cost of eventual consistency and harder debugging.</li>
+        <li><b>Saga vs 2PC?</b> — 2PC holds locks across services while a coordinator votes — blocks on coordinator
+          failure, kills availability; nobody runs it across microservices. Saga = sequence of local transactions +
+          compensating actions on failure. Choreography (events) for few steps; orchestration (explicit state machine)
+          when the flow needs visibility.</li>
+        <li><b>Outbox pattern?</b> — "Write DB + publish event" is two systems, no atomicity. Fix: write the
+          event into an <code>outbox</code> table in the same local transaction; a relay (poller or CDC/Debezium) publishes
+          it after commit. Guarantees at-least-once → consumers must dedupe.</li>
+        <li><b>Idempotency?</b> — Retries + at-least-once mean everything arrives twice eventually. Client sends
+          an idempotency key; server does check-and-record atomically (unique constraint / Redis SETNX) and replays the
+          stored response on duplicates. Natural idempotency (state-based updates) beats bolted-on where possible.</li>
+        <li><b>Who owns the data?</b> — One service, one database; others get data via API or subscribed events
+          (local read models). Shared tables couple deploys and schemas — the #1 microservices smell.</li>
+      </ul>
+      <p>Deep dive: <a href="system-design.html#async-sagas">Sagas</a> · <a href="system-design.html#async-outbox">Outbox</a>
+        · <a href="system-design.html#ds-idempotency">Idempotency</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-micro-resilience" data-level="important" data-freq="5" data-type="concept" data-tags="timeouts,retries,circuit breaker,rate limiting,cache aside,stampede,consistent hashing">
+    <header class="term-head"><h3>Resilience &amp; scale (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Timeouts + retries + circuit breaker in one answer?</b> — Every remote call gets a timeout shorter
+          than your own SLA budget; retries only on idempotent ops, few, with exponential backoff + jitter (retry storms
+          amplify outages); a circuit breaker trips after a failure ratio, fails fast while open, half-opens to probe.
+          Order matters: timeout bounds one call, retry bounds attempts, breaker bounds the epidemic. Plus bulkheads:
+          separate pools per dependency.</li>
+        <li><b>Rate limiting?</b> — Token bucket (allows bursts, refill = sustained rate) is the default; sliding
+          window counter for smoother fairness. Enforce at the gateway per user/API-key; return 429 + <code>Retry-After</code>.
+          Distributed: counters in Redis (Lua for atomicity), accept slight over-admission.</li>
+        <li><b>Cache-aside + stampede?</b> — Read: cache → miss → DB → set with TTL. Write: update DB,
+          <i>invalidate</i> (don't update) cache. Stampede on hot-key expiry: single-flight lock (one loader, rest wait),
+          jittered TTLs, or serve-stale-while-refreshing. Say "cache is a copy, DB is truth".</li>
+        <li><b>Consistent hashing one-liner?</b> — Nodes and keys hash onto a ring; a key belongs to the next
+          node clockwise, so adding/removing a node remaps only ~1/N of keys (vs nearly all with mod-N); virtual nodes smooth the load.</li>
+        <li><b>Scaling a stateless service?</b> — Horizontal replicas behind an LB; state pushed out to Redis/DB;
+          scale on a leading signal (queue depth, RPS per pod) not just CPU; know your per-pod capacity number from a load test.</li>
+      </ul>
+      <p>Deep dive: <a href="system-design.html#net-timeouts-retries">Timeouts &amp; retries</a> ·
+        <a href="system-design.html#ca-stampede">Stampede</a> · <a href="system-design.html#rel-ratelimit-algos">Rate limiting</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-micro-ops" data-level="important" data-freq="5" data-type="concept" data-tags="observability,metrics,logs,traces,deployment,canary,multi-region,p99,debugging">
+    <header class="term-head"><h3>Operations (5)</h3></header>
+    <div class="term-body">
+      <ul>
+        <li><b>Observability's 3 signals?</b> — Metrics (aggregates, cheap, alert on them: RED — rate, errors,
+          duration), logs (structured JSON, per-event detail, correlation ID on every line), traces (one request's path
+          across services with per-hop timing). Alert on symptoms users feel (SLO burn), not on causes.</li>
+        <li><b>Deployment safety?</b> — Rolling for routine; canary (1% → watch error rate/p99 → ramp) for risk;
+          blue-green for instant rollback. Non-negotiables: health/readiness probes gate traffic, DB migrations
+          backward-compatible (expand → migrate → contract), feature flags decouple release from deploy.</li>
+        <li><b>Multi-region in one breath?</b> — Route users to the nearest region (GeoDNS/anycast); active-active
+          for stateless tiers; data is the hard part — async replication + region-local reads, writes either home-region-pinned
+          or accept conflict resolution. Failover = DNS/traffic shift + promoting replicas; practice it or it doesn't exist.</li>
+        <li><b>How do you debug high p99?</b> — p50 fine + p99 bad = a slow minority: check GC pauses,
+          connection-pool exhaustion, one slow shard/hot key, cold caches, retry amplification. Path: dashboards → exemplar
+          traces of slow requests → find the hop that ate the time → its saturation metric. Say "tail latency amplifies
+          with fan-out" — one slow dependency in 10 parallel calls owns your p99.</li>
+        <li><b>Config &amp; secrets?</b> — Externalized config (env/config server), secrets in a vault not git,
+          per-env overrides via the precedence chain, and audit who read what.</li>
+      </ul>
+      <p>Deep dive: <a href="system-design.html#rel-observability">Observability</a> ·
+        <a href="system-design.html#rel-deploy">Deploys</a> · <a href="system-design.html#rel-tail-latency">Tail
+        latency</a> · <a href="system-design.html#rel-multiregion">Multi-region</a></p>
+    </div>
+  </article>
+</section>
+
+<section class="section" id="s-rev-lld">
+  <h2>6️⃣ Low-Level Design Speed-Run</h2>
+
+  <article class="term-card" id="rev-lld-solid" data-level="core" data-freq="5" data-type="pattern" data-tags="solid,design patterns,singleton,factory,strategy,observer,decorator,builder,adapter,state">
+    <header class="term-head"><h3>SOLID + the 8 patterns cheat</h3></header>
+    <div class="term-body">
+      <div class="explanation"><b>SOLID in five lines.</b><ul>
+        <li><b>S</b>ingle responsibility — one reason to change per class; if the name has "And", split it.</li>
+        <li><b>O</b>pen/closed — add behavior by adding types (new Strategy/subclass), not by editing switch blocks.</li>
+        <li><b>L</b>iskov — subtype must honor the base contract; a Square that breaks Rectangle's setters is the classic violation.</li>
+        <li><b>I</b>nterface segregation — many small interfaces; no client forced to depend on methods it ignores.</li>
+        <li><b>D</b>ependency inversion — depend on abstractions, inject implementations (what Spring DI does for you).</li>
+      </ul></div>
+      <table class="cmp">
+        <tr><th>Pattern</th><th>One-line use case</th></tr>
+        <tr><td><b>Singleton</b></td><td>One shared stateless/coordinating instance — ParkingLot, config,
+          connection pool (enum or holder idiom, or let the DI container do it).</td></tr>
+        <tr><td><b>Factory</b></td><td>Creation varies by type/config — <code>VehicleFactory.create(type)</code>,
+          payment-method creation, RateLimiter algo from config.</td></tr>
+        <tr><td><b>Strategy</b></td><td>Swap an algorithm at runtime — fee calculation, split logic, dispatch policy, retry policy.</td></tr>
+        <tr><td><b>Observer</b></td><td>Notify N listeners of an event without coupling — seat released, price drop, elevator arrived.</td></tr>
+        <tr><td><b>Decorator</b></td><td>Layer optional behavior over the same interface — metrics/logging around
+          a RateLimiter, toppings on an order.</td></tr>
+        <tr><td><b>Builder</b></td><td>Many optional constructor params — immutable Booking/Request objects with readable construction.</td></tr>
+        <tr><td><b>Adapter</b></td><td>Wrap a foreign API into your interface — Stripe/PayPal behind one <code>PaymentGateway</code>.</td></tr>
+        <tr><td><b>State</b></td><td>Behavior depends on lifecycle state — elevator (moving/idle/doors-open),
+          order status transitions, seat FREE→HELD→BOOKED.</td></tr>
+      </table>
+      <p>Deep dive: <a href="java.html#pat-solid">SOLID</a> · <a href="java.html#s-patterns">Design patterns in modern Java</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-lld-parking" data-level="core" data-freq="5" data-type="pattern" data-tags="parking lot,lld,object oriented design,strategy,factory,singleton">
+    <header class="term-head"><h3>LLD 1 — Parking Lot</h3></header>
+    <div class="term-body">
+      <div class="explanation"><b>Requirements (get sign-off first):</b><ul>
+        <li>Multiple floors; spot sizes (bike/compact/large); vehicle parks in a fitting spot.</li>
+        <li>Ticket on entry, fee on exit — fee policy varies (hourly, flat, weekend).</li>
+        <li>Real-time free-spot count per floor/size.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>enum SpotSize { BIKE, COMPACT, LARGE }
+interface Vehicle { SpotSize required(); String plate(); }
+
+class ParkingSpot { SpotSize size; boolean free; }
+class ParkingFloor { Map&lt;SpotSize, Deque&lt;ParkingSpot&gt;&gt; freeSpots;
+    Optional&lt;ParkingSpot&gt; acquire(Vehicle v); }
+
+interface FeeStrategy { BigDecimal fee(Ticket t); }        // hourly, flat…
+
+class ParkingLot {                                          // singleton
+    List&lt;ParkingFloor&gt; floors; FeeStrategy pricing;
+    Ticket enter(Vehicle v);          // find spot, stamp entry time
+    BigDecimal exit(Ticket t);        // pricing.fee(t), free the spot
+}</code></pre>
+      <div class="explanation"><b>Patterns &amp; why:</b><ul>
+        <li><b>Strategy</b> for fees — pricing changes without touching ParkingLot (open/closed).</li>
+        <li><b>Singleton</b> ParkingLot; <b>Factory</b> if vehicle/spot creation grows variants.</li>
+        <li>Free spots per size in a <code>Deque</code>/heap — O(1) allocate beats scanning floors.</li>
+      </ul></div>
+      <p><b>Follow-up they'll ask:</b> concurrency — two cars, one spot: make <code>acquire</code> atomic
+        (synchronized per floor or <code>ConcurrentLinkedDeque.poll</code>); nearest-spot allocation → min-heap by distance per size.</p>
+      <p>Deep dive: <a href="system-design.html#p-dz-parking">Parking-lot drill (system-design)</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-lld-elevator" data-level="important" data-freq="5" data-type="pattern" data-tags="elevator,lld,state pattern,strategy,scan,look,dispatcher">
+    <header class="term-head"><h3>LLD 2 — Elevator System</h3></header>
+    <div class="term-body">
+      <div class="explanation"><b>Requirements:</b><ul>
+        <li>N elevators, M floors; hall calls (floor + direction) and cabin calls (target floor).</li>
+        <li>Assign calls to the best elevator; serve stops in sweep order, not FIFO.</li>
+        <li>States: idle, moving up/down, doors open; capacity/overload flag.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>enum Direction { UP, DOWN, IDLE }
+
+class Elevator {
+    int floor; Direction dir;
+    TreeSet&lt;Integer&gt; upStops = new TreeSet&lt;&gt;();     // sorted sweep
+    TreeSet&lt;Integer&gt; downStops = new TreeSet&lt;&gt;(Comparator.reverseOrder());
+    void addStop(int f);
+    void step();               // move one floor; open doors if f is a stop
+}
+
+interface DispatchStrategy { Elevator pick(List&lt;Elevator&gt; all, int floor, Direction d); }
+
+class ElevatorController {     // receives hall calls, delegates to strategy
+    DispatchStrategy strategy; List&lt;Elevator&gt; cars;
+}</code></pre>
+      <div class="explanation"><b>Patterns &amp; why:</b><ul>
+        <li><b>State</b> — behavior per state (a moving car ignores door commands); avoids nested-if soup.</li>
+        <li><b>Strategy</b> for dispatch — nearest-car vs load-balanced swappable; the LOOK/SCAN sweep (finish
+          this direction, then reverse) is the answer they want, and <code>TreeSet.ceiling/floor</code> gives the next stop.</li>
+        <li><b>Observer</b> — floors/displays subscribe to elevator position events.</li>
+      </ul></div>
+      <p><b>Follow-up they'll ask:</b> why not FIFO? (starves middle floors, zigzags); how to handle a call
+        while moving opposite → queue it in the other TreeSet for the return sweep.</p>
+      <p>Deep dive: <a href="java.html#pat-command-iterator-state">State pattern</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-lld-splitwise" data-level="important" data-freq="5" data-type="pattern" data-tags="splitwise,lld,expense sharing,strategy,ledger,settle,min cash flow">
+    <header class="term-head"><h3>LLD 3 — Splitwise</h3></header>
+    <div class="term-body">
+      <div class="explanation"><b>Requirements:</b><ul>
+        <li>Users add expenses paid by one, split among many — equal, exact amounts, or percentages.</li>
+        <li>Anyone can view net balances ("who owes whom how much").</li>
+        <li>Settle-up suggests the minimum number of transactions.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>record Expense(User paidBy, BigDecimal amount,
+               List&lt;User&gt; among, SplitStrategy split) {}
+
+interface SplitStrategy {                       // EQUAL, EXACT, PERCENT
+    Map&lt;User, BigDecimal&gt; shares(Expense e);    // validates sums to total
+}
+
+class Ledger {
+    Map&lt;User, BigDecimal&gt; net = new HashMap&lt;&gt;();   // + is owed, − owes
+    void apply(Expense e);        // payer += amount; each sharer −= share
+    List&lt;Txn&gt; settle();           // greedy: max debtor pays max creditor
+}</code></pre>
+      <div class="explanation"><b>Patterns &amp; why:</b><ul>
+        <li><b>Strategy</b> per split type — validation lives with the strategy (percents sum to 100, exacts sum to total).</li>
+        <li>Net-balance map, not pairwise matrix — settle-up is greedy two-heap matching (max debtor ↔ max creditor), ≤ n−1 transactions.</li>
+        <li><b>BigDecimal</b> for money, and say who eats the leftover paisa on 100/3 — rounding policy is a real requirement.</li>
+      </ul></div>
+      <p><b>Follow-up they'll ask:</b> is minimum-transaction settling optimal? (greedy is a good heuristic;
+        true minimum is NP-hard — knowing that is the senior answer); groups + simplify-debts toggle; concurrent expense
+        adds → per-group lock or event log.</p>
+      <p>Deep dive: <a href="java.html#pat-strategy">Strategy pattern</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-lld-bookmyshow" data-level="important" data-freq="5" data-type="pattern" data-tags="bookmyshow,lld,seat locking,booking,state,optimistic locking,ttl">
+    <header class="term-head"><h3>LLD 4 — BookMyShow (seat locking)</h3></header>
+    <div class="term-body">
+      <div class="explanation"><b>Requirements:</b><ul>
+        <li>Browse shows, pick seats from a live seat map.</li>
+        <li>Selected seats lock for 5 min while paying; expire back to free if unpaid.</li>
+        <li>Two users must never book the same seat — correctness over latency here.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>enum SeatState { FREE, HELD, BOOKED }
+class Seat { String id; SeatState state; long version; }
+
+class SeatHold { List&lt;Seat&gt; seats; User user; Instant expiresAt; }
+
+interface SeatLockService {
+    Optional&lt;SeatHold&gt; hold(Show show, List&lt;String&gt; seatIds, User u);
+    void release(SeatHold h);                    // TTL reaper calls this
+}
+
+class BookingService {
+    Booking confirm(SeatHold h, PaymentResult p);  // HELD → BOOKED atomically
+}</code></pre>
+      <div class="explanation"><b>Patterns &amp; why:</b><ul>
+        <li><b>State</b> — FREE→HELD→BOOKED with legal transitions only; HELD→FREE on TTL expiry.</li>
+        <li>Optimistic locking (version check / conditional update) on the hold — all seats in one transaction,
+          any conflict rolls back the whole hold.</li>
+        <li><b>Facade</b> BookingService orchestrates hold + payment + confirm; Observer notifies waitlist on release.</li>
+      </ul></div>
+      <p><b>Follow-up they'll ask:</b> payment succeeds as the hold expires → confirm re-validates the hold
+        atomically, else refund; where does the lock live at scale → DB conditional update or Redis SETNX+TTL, single
+        source of truth per show.</p>
+      <p>Deep dive: <a href="system-design.html#dz-booking">Ticket booking (system-design)</a></p>
+    </div>
+  </article>
+
+  <article class="term-card" id="rev-lld-ratelimiter" data-level="important" data-freq="5" data-type="pattern" data-tags="rate limiter,lld,token bucket,sliding window,strategy,decorator,factory">
+    <header class="term-head"><h3>LLD 5 — Rate Limiter (class design)</h3></header>
+    <div class="term-body">
+      <div class="explanation"><b>Requirements:</b><ul>
+        <li><code>boolean allow(clientKey)</code> — N requests per window per client, thread-safe.</li>
+        <li>Pluggable algorithm (token bucket, sliding window log/counter) chosen by config.</li>
+        <li>Bursts allowed up to capacity; memory bounded per client.</li>
+      </ul></div>
+      <pre class="code" data-lang="java"><code>interface RateLimiter { boolean allow(String key); }
+
+class TokenBucket implements RateLimiter {
+    final long capacity, refillPerSec;
+    final ConcurrentHashMap&lt;String, Bucket&gt; buckets = new ConcurrentHashMap&lt;&gt;();
+    // Bucket { double tokens; long lastNanos; }  — refill lazily:
+    // tokens = min(capacity, tokens + elapsedSec * refillPerSec)
+    public boolean allow(String key) {
+        return buckets.computeIfAbsent(key, k -&gt; new Bucket())
+                      .tryConsume();               // synchronized per bucket
+    }
+}
+class RateLimiterFactory { static RateLimiter of(Config c); }
+class MeteredLimiter implements RateLimiter { /* wraps + counts 429s */ }</code></pre>
+      <div class="explanation"><b>Patterns &amp; why:</b><ul>
+        <li><b>Strategy</b> — algorithms behind one interface; callers never know which.</li>
+        <li><b>Factory</b> reads config → algorithm; <b>Decorator</b> layers metrics/logging without touching core logic.</li>
+        <li>Lazy refill on access (no timer threads); per-bucket lock, not a global one — say why.</li>
+      </ul></div>
+      <p><b>Follow-up they'll ask:</b> distributed version → counters in Redis with a Lua script for atomic
+        check-and-decrement; token bucket vs sliding window trade-off (bursts vs smoothness); eviction of idle client
+        buckets (LRU / expireAfterAccess).</p>
+      <p>Deep dive: <a href="system-design.html#dz-ratelimiter">Rate limiter design</a> ·
+        <a href="system-design.html#rel-ratelimit-algos">Algorithms</a></p>
+    </div>
+  </article>
+
+  <section class="quiz" data-quiz="revision-s6" data-title="Final sanity check — whole page, 8 questions">
+    <div class="q" data-q="1" data-answer="c">
+      <p class="q-text">Subarray Sum Equals K with negative numbers — why not a sliding window?</p>
+      <label><input type="radio" name="revision-s6-1" value="a"> Sliding window is O(n²) here</label>
+      <label><input type="radio" name="revision-s6-1" value="b"> Windows can't handle sums, only counts</label>
+      <label><input type="radio" name="revision-s6-1" value="c"> Negatives break monotonicity: growing the window
+        can shrink the sum, so shrink/grow decisions are unsound — use prefix sums + HashMap</label>
+      <label><input type="radio" name="revision-s6-1" value="d"> It works fine; the map is just faster</label>
+      <div class="q-explain"><b>c.</b> The window trick needs "expand → metric moves one way". With negatives
+        it doesn't, so <code>seen.getOrDefault(sum - k, 0)</code> over prefix counts is the tool.</div>
+    </div>
+    <div class="q" data-q="2" data-answer="b">
+      <p class="q-text">You need the K largest elements of a huge stream. Which heap?</p>
+      <label><input type="radio" name="revision-s6-2" value="a"> Max-heap of all elements, pop K times</label>
+      <label><input type="radio" name="revision-s6-2" value="b"> Min-heap of size K — evict the smallest whenever it grows past K</label>
+      <label><input type="radio" name="revision-s6-2" value="c"> Max-heap of size K</label>
+      <label><input type="radio" name="revision-s6-2" value="d"> Sort the stream</label>
+      <div class="q-explain"><b>b.</b> The min-heap's root is the "weakest member of the club" — anything bigger
+        replaces it. O(n log K) time, O(K) memory; a max-heap of everything is O(n) memory.</div>
+    </div>
+    <div class="q" data-q="3" data-answer="c">
+      <p class="q-text">When does a HashMap bucket become a red-black tree?</p>
+      <label><input type="radio" name="revision-s6-3" value="a"> At load factor 0.75</label>
+      <label><input type="radio" name="revision-s6-3" value="b"> At 8 entries in the bucket, always</label>
+      <label><input type="radio" name="revision-s6-3" value="c"> At 8 entries in the bucket, and only if the
+        table has ≥ 64 slots — otherwise it resizes instead</label>
+      <label><input type="radio" name="revision-s6-3" value="d"> HashMap never treeifies; that's ConcurrentHashMap</label>
+      <div class="q-explain"><b>c.</b> Both thresholds matter. Load factor 0.75 governs <i>resize</i>, not
+        treeify. CHM treeifies too, so <b>d</b> is wrong.</div>
+    </div>
+    <div class="q" data-q="4" data-answer="d">
+      <p class="q-text">A <code>@Transactional</code> method is called via <code>this.method()</code> from
+        another method in the same bean. What happens?</p>
+      <label><input type="radio" name="revision-s6-4" value="a"> Transaction starts normally</label>
+      <label><input type="radio" name="revision-s6-4" value="b"> IllegalTransactionStateException</label>
+      <label><input type="radio" name="revision-s6-4" value="c"> A new nested transaction</label>
+      <label><input type="radio" name="revision-s6-4" value="d"> No transaction — self-invocation bypasses the
+        proxy, the annotation is silently ignored</label>
+      <div class="q-explain"><b>d.</b> Spring AOP advises calls that enter through the proxy; <code>this</code>
+        is the raw object. Same trap for <code>@Cacheable</code> and <code>@Async</code>. Fix: move the method to another bean.</div>
+    </div>
+    <div class="q" data-q="5" data-answer="a">
+      <p class="q-text">Why saga over 2PC for an order → payment → inventory flow across services?</p>
+      <label><input type="radio" name="revision-s6-5" value="a"> 2PC blocks all participants on a coordinator
+        failure and holds locks across services; sagas use local transactions + compensations, trading atomicity for availability</label>
+      <label><input type="radio" name="revision-s6-5" value="b"> Sagas are strongly consistent, 2PC is not</label>
+      <label><input type="radio" name="revision-s6-5" value="c"> 2PC cannot roll back</label>
+      <label><input type="radio" name="revision-s6-5" value="d"> Sagas need no failure handling</label>
+      <div class="q-explain"><b>a.</b> The saga's price is intermediate states being visible and compensations
+        you must write — say that trade-off out loud in the interview.</div>
+    </div>
+    <div class="q" data-q="6" data-answer="b">
+      <p class="q-text">A hot cache key expires and 5,000 requests hit the DB at once. Best fix?</p>
+      <label><input type="radio" name="revision-s6-6" value="a"> Longer TTLs everywhere</label>
+      <label><input type="radio" name="revision-s6-6" value="b"> Single-flight: one request rebuilds (lock/mutex
+        on the key), others wait or get stale; plus jittered TTLs so hot keys don't expire together</label>
+      <label><input type="radio" name="revision-s6-6" value="c"> Write-through caching</label>
+      <label><input type="radio" name="revision-s6-6" value="d"> Shard the database</label>
+      <div class="q-explain"><b>b.</b> This is a stampede (dog-pile). One loader + jitter (or refresh-ahead)
+        removes the thundering herd; longer TTLs just delay it and add staleness.</div>
+    </div>
+    <div class="q" data-q="7" data-answer="c">
+      <p class="q-text">Fee calculation in your Parking Lot must support hourly, flat, and weekend pricing, selectable at runtime. Which pattern?</p>
+      <label><input type="radio" name="revision-s6-7" value="a"> Singleton</label>
+      <label><input type="radio" name="revision-s6-7" value="b"> Decorator</label>
+      <label><input type="radio" name="revision-s6-7" value="c"> Strategy — one <code>FeeStrategy</code> interface,
+        one implementation per policy, injected into the lot</label>
+      <label><input type="radio" name="revision-s6-7" value="d"> Template method</label>
+      <div class="q-explain"><b>c.</b> Interchangeable algorithms behind one interface = Strategy. Decorator
+        would <i>stack</i> behaviors (e.g. surge on top of hourly); template method fixes the skeleton at compile time.</div>
+    </div>
+    <div class="q" data-q="8" data-answer="b">
+      <p class="q-text">In Coin Change, what does <code>dp[a]</code> mean and why fill with <code>amount + 1</code>?</p>
+      <label><input type="radio" name="revision-s6-8" value="a"> Number of ways to make a; +1 avoids zero-division</label>
+      <label><input type="radio" name="revision-s6-8" value="b"> Minimum coins to make amount a; <code>amount
+        + 1</code> acts as infinity since no answer can use more than <code>amount</code> coins</label>
+      <label><input type="radio" name="revision-s6-8" value="c"> The largest coin used for a</label>
+      <label><input type="radio" name="revision-s6-8" value="d"> Whether a is reachable; +1 marks visited</label>
+      <div class="q-explain"><b>b.</b> Smallest coin is ≥ 1, so a real answer never exceeds <code>amount</code>
+        coins — anything larger still means "unreachable", hence the final <code>dp[amount] &gt; amount ? -1 : dp[amount]</code>.</div>
+    </div>
+  </section>
+</section>
+
+  <!-- CONTENT END -->
+  <footer class="foot"><p><a href="index.html">Back to hub</a> · <a href="system-design-quickref.html">SD quick
+    reference</a> · Good luck — you've done the work.</p></footer>
+</main>
+
+<button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+
+<script src="assets/highlight.js"></script>
+<script src="assets/guide.js"></script>
+</body>
+</html>
